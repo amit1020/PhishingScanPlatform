@@ -2,9 +2,7 @@ from web import Create_App
 
 
 
-
-
-app = create_app()
+app = Create_App()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="Localhost", port=1234 ,debug=True)
