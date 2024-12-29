@@ -2,7 +2,7 @@ from flask import Blueprint, render_template
 
 
 
-
+#Define the blueprint: 'product', set its url prefix: app.url/product
 product_bp = Blueprint(
     'product', __name__,
     template_folder='templates',
@@ -15,6 +15,7 @@ product_bp = Blueprint(
 
 
 
-@product_bp.route('/product')
+@product_bp.route('/')
 def product_home():
-    return "Hello product"
+    return render_template('product.html')
+    

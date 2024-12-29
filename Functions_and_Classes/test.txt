@@ -1,0 +1,4 @@
+virustotal,url_scan,https://www.virustotal.com/api/v3/urls,POST,Submit a URL for scanning
+virustotal,domain_scan,https://www.virustotal.com/api/v3/domains/id/analyse,POST,Retrieve a URL scan report
+virustotal,Threat_catagories,https://www.virustotal.com/api/v3/popular_threat_categories,GET,Retrieve a list of popular threat categories
+
