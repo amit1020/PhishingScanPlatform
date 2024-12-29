@@ -1,1 +1,3 @@
 *.ini
+command.txt
+.venv/
