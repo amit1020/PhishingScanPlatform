@@ -1,4 +1,4 @@
-import requests,configparser,csv
+import requests,configparser
 
 
 #TODO https://docs.apivoid.com/  this too  and finish the class
@@ -22,10 +22,9 @@ class API_Helper:
     def __init__():
         # Read the config file
         config = configparser.ConfigParser()
-        config.read('../config.ini')
+        config.read('../config.ini') #TODO: Change this to the correct path with PATHLIB
         # Access values
         self.api_key = config['api_virustotal']['api_key']
-        self.endpoint = config['api_virustotal']['endpoint']
         # Set default headers
         self.headers = {
             "X-Apikey": self.api_key,
@@ -37,7 +36,6 @@ class API_Helper:
 
 
     def Send_requests_api(self,data,api_function):
-        #data = {"url": endpoint}
         response = requests.post(url, headers=self.headers,data=data)
         if response.status_code == 200:
             return response.json()
@@ -47,29 +45,7 @@ class API_Helper:
 
 
 
-def Enter_cvsv_to_file(file_path, data):  
-    import csv
-
-    file_path = 'Functions_and_Classes\API_URLS.csv'
-    
-    name = "dsfsfs"
-
-
-    with open("Functions_and_Classes\\test.txt", mode='r') as fd:
-        for r in fd.readlines():
-            print(r)
-            r = r.split(",")
-            print(r)
-            try:
-                data = [r[0],r[1],r[2],r[3], r[4]]
-                with open(file_path, mode='a', newline='') as file:
-                    csv_writer = csv.writer(file)
-                    csv_writer.writerow([data])
-            except:
-                pass
 
 
 
 
-
-    #data = [['Name', 'Age', 'City'], ['Alice', 30, 'New York'], ['Bob', 25, 'Los Angeles']]
