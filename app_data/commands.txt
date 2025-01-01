@@ -1,8 +1,0 @@
-Check Current Execution Policy
-    - Get-ExecutionPolicy -List
-
-Change the Execution Policy
-    - Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-
-Return to noraml premishions
-    - Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Restricted

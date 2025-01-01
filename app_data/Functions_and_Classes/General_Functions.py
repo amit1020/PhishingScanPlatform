@@ -2,34 +2,29 @@ import configparser
 from pathlib import Path
 
 
-
-
 #TODO improve the secuirity
 def read_ini_file(action,api_name) -> configparser.SectionProxy:
-    if action == "api" and api_name != None:
+    if action == "api" and api_name != None: #Check if the action is to get the api key
         config = configparser.ConfigParser()
+        
         config.read(Path(__file__).parent.parent / "config.ini" ) #get the path of the config file
         
-        if "api" in api_name and api_name in config.sections():
-            return list(config[api_name]['api_key'])
-        
+        if "api" in api_name and api_name in config.sections(): #Check if the api name is in the config file
+            return config['APIs'] #return the api key
         else:
             return None
         
-    elif action == "database_Connection" and api_name == None:
+    elif action == "Database_Connection" and api_name == None:
         config = configparser.ConfigParser()
-        config.read(Path(__file__).parent.parent / "config.ini" )
-        db_config = config['mysql_database_for_connection']
-        print(db_config['MYSQL_DATABASE'])
+        config.read(Path(__file__).parent.parent / "config.ini" )#found the path of the config file
+        return config['mysql_database_for_connection']
         
-        
-        return db_config
         
     else:
         return None
     
         
-    
+
 
 
 
