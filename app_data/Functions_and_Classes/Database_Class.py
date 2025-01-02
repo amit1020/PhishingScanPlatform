@@ -30,8 +30,7 @@ class Database_Connection_Class():
         
             if self.connection.is_connected():
                 self.mycursor = self.connection.cursor()
-                
-                #self.Build_database()
+                self.Build_database()
         except Error as e:
             print(e)
             self.mycursor = None
@@ -114,9 +113,9 @@ class Database_Connection_Class():
                 try:
                     self.mycursor.execute(command) #execute the command 
                     self.connection.commit()
-                    #print(f"Executed: {command}")
+                    print(f"Executed: {command}")
                 except mysql.connector.Error as err:
-                    #print(f"Error: {err}")
+                    print(f"Error: {err}")
                     self.connection.rollback()
     #*-----------------------------------------------------------------------------------------------------------                
                     

@@ -2,7 +2,7 @@ import configparser
 
 """
 Check Current Execution Policy
-    - Get-ExecutionPolicy -List
+    -Get-ExecutionPolicy -List
 
 Change the Execution Policy
     - Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
