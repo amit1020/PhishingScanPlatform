@@ -11,8 +11,6 @@ admin_bp = Blueprint(
 
 
 
-
-
 @admin_bp.route('/admin')
 def admin_home():
     return "Hello admin"

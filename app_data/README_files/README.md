@@ -56,6 +56,12 @@
     |
     |
 
+## git Structure 
+    main
+    |
+    |
+    ├── F_Flask/API_connection :Connection to the api 
+    
 
 
 
