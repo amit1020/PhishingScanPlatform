@@ -8,8 +8,8 @@ def Create_App():
     from web.admin.routes import admin_bp #import the blueprint object
     app.register_blueprint(admin_bp) #register the blueprint object in the app
     
-    from web.product.routes import product_bp #import the blueprint object
-    app.register_blueprint(product_bp) #register the blueprint object in the app
+    from web.Main_page.routes import Main_page_bp #import the blueprint object
+    app.register_blueprint(Main_page_bp,url_prefix='/') #register the blueprint object in the app
     
     
     
