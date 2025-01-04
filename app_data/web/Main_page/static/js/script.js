@@ -1,22 +1,21 @@
-document.addEventListener("DOMContentLoaded", function() {
-    let marker = document.querySelector("#marker");
-    let list = document.querySelectorAll("ul li");
-  
-    function moveIndicator(e) {
-      marker.style.left = e.offsetLeft + "px";
-      marker.style.width = e.offsetWidth + "px";
-    }
-  
-    list.forEach((link) => {
-      link.addEventListener("mousemove", (e) => {
-        moveIndicator(e.target);
-      });
+$(document).ready(function() {
+    // cool nav menu
+    $(window).on('load resize', function() {
+        var $thisnav = $('.current-menu-item').offset().left;
+
+        $('.menu-item').hover(function() {
+            var $left = $(this).offset().left - $thisnav;
+            var $width = $(this).outerWidth();
+            var $start = 0;
+            $('.wee').css({ 'left': $left, 'width': $width });
+        }, function() {
+            var $initwidth = $('.current-menu-item').width();
+            $('.wee').css({ 'left': '0', 'width': $initwidth });
+        });
     });
-  
-    function activeLink() {
-      list.forEach((item) => item.classList.remove("active"));
-      this.classList.add("active");
-    }
-  
-    list.forEach((item) => item.addEventListener("mouseover", activeLink));
-  });
+
+});
+
+document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+});

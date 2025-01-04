@@ -20,7 +20,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./Volumes_app:/var/lib/mysql  
+      - C:\Users\amitl\Documents\Volume_Phishing_Scan\Volume_app:/var/lib/mysql  
     networks:
       - my_network
 

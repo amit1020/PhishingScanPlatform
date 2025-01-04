@@ -6,14 +6,6 @@
     font-family: "Poppins", sans-serif;
 }
 
-body {
-    height: 100vh;
-    width: 100vw;
-    display: grid;
-    place-content: center;
-    background: #000000;
-}
-
 .input-container {
     width: 300px;
     border-radius: 5px;
