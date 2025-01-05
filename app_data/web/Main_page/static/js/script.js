@@ -18,4 +18,11 @@ $(document).ready(function() {
 
 document.addEventListener('contextmenu', function(event) {
     event.preventDefault();
+
 });
+
+
+//Navigatie menu buttons
+function Navigation_menu_function(button_name) {
+    console.log(button_name);
+}
