@@ -61,17 +61,20 @@
     transform: scaleX(1);
 }
 
-
-/* style.css */
-
-.gif-container {
-    background-color: transparent;
-    text-align: right;
-    margin-top: 20px;
+.video-container {
+    position: fixed;
+    top: 10%;
+    left: 40%;
+    width: 80%;
+    height: 600px;
+    overflow: hidden;
 }
 
-.gif-container img {
-    background-color: transparent;
-    max-width: 50%;
-    height: auto;
+.video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* שומר על יחס גובה-רוחב של הווידאו וממלא את המסך */
+    pointer-events: none;
+    /* מונע מהמשתמש לקיים אינטראקציה עם הווידאו */
 }

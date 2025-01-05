@@ -22,19 +22,28 @@ document.addEventListener('contextmenu', function(event) {
 });
 
 
-//Navigatie menu buttons
-function Navigation_menu_function(page_name) {
-    let page_name;
-    switch (page_name) {
-        case "Home":
-            window.location.href = "http://"
-            console.log(button_name);
-        case "About":
-            window.location.href = "http://"
-            console.log(button_name);
-        default:
-            console.log("Error");
-    } //close the switch
+
+function Navigation_menu_function() {
+    console.log("Navigation_menu_function");
+    Get_Pages("/login/");
+
+}
 
 
-} //close the function
+
+async function Get_Pages(site) {
+    try {
+        const response = await fetch(site, {
+            method: 'GET'
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        // מעבר לדף החדש
+        window.location.href = site;
+    } catch (error) {
+        console.log('Fetch error: ', error);
+    }
+}

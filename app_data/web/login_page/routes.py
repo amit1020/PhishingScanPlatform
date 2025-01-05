@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 
 
 
@@ -12,12 +12,9 @@ login_bp = Blueprint(
 
 
 
-@login_bp.route('/')
+@login_bp.route('/', methods=['GET'])
 def user_hello():
-    return "Hello sadsadka"
-
-
-
+    return render_template('/login.html') 
 
 
 
