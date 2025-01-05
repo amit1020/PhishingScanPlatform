@@ -23,6 +23,18 @@ document.addEventListener('contextmenu', function(event) {
 
 
 //Navigatie menu buttons
-function Navigation_menu_function(button_name) {
-    console.log(button_name);
-}
+function Navigation_menu_function(page_name) {
+    let page_name;
+    switch (page_name) {
+        case "Home":
+            window.location.href = "http://"
+            console.log(button_name);
+        case "About":
+            window.location.href = "http://"
+            console.log(button_name);
+        default:
+            console.log("Error");
+    } //close the switch
+
+
+} //close the function
