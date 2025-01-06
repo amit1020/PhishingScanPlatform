@@ -10,3 +10,6 @@ __pycache__/
 
 # Ignore Volumes_app directory
 Volumes_app/
+
+#ignore animation 
+Animations/
