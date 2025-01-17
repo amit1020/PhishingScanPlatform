@@ -2,7 +2,7 @@
 
 services:
   python_app:  
-    image:  python_app:latest
+    image:  phishing-scan-platform:latest
     container_name: python_web_service_app
     working_dir: /app
     ports:
@@ -14,13 +14,13 @@ services:
 
   my_sql:
     image: mysql:latest
-    container_name: PhishingScanPlatform_db
+    container_name: phishing-scan-platform-db
     env_file:
-      - app_data/.env  
+      - app_data/.env_user_db  
     ports:
       - "3306:3306"
     volumes:
-      - C:\Users\amitl\Documents\Volume_Phishing_Scan\Volume_app:/var/lib/mysql  
+      - F:\Phishing_Volume_App:/var/lib/mysql  
     networks:
       - my_network
 

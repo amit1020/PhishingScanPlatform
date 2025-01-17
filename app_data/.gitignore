@@ -3,13 +3,21 @@ venv/
 
 # Ignore environment variables file
 *.ini
-.env
+.env_user_db
 
 # Ignore Python cache files
-__pycache__/
+**/__pycache__/
 
 # Ignore Volumes_app directory
 Volumes_app/
 
 #ignore animation 
 Animations/
+
+# Ignore compiled Python files
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/

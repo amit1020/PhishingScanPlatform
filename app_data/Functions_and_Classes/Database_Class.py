@@ -2,6 +2,9 @@ import sys,os,configparser,mysql.connector
 from mysql.connector import Error
 from datetime import datetime
 from pathlib import Path
+from General_Functions import read_ini_file
+
+
 
 HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","TRACE"]
 
@@ -13,9 +16,10 @@ HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","
 
             
 class Database_Connection_Class():
-    def __init__(self):
+    def __init__(self,user_type):
         #self.database_code_path = Path(__file__).parent.parent / "DatabaseCode.sql"
-        self.database_code_path = Path(__file__).parent / "Database.sql"
+        self.database_code_path = "./DB_codes/Users_DB.sql"#?NEED to check if the path is correct
+        
         conenction_data = read_ini_file("Database_Connection",None)
    
         try: #set the setting of the connection frin the ini file
