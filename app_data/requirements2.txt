@@ -4,3 +4,5 @@ configparser >= 5.0.0
 mysql-connector-python >= 2.2.9 
 pandas >= 1.1.0
 pyotp >= 2.4.0 # for two factor authentication
+flask-assets >= 2.0 # for using sass(scss) files
+libsass >= 0.20.1 # for using sass(scss) files
