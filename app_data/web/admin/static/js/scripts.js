@@ -171,7 +171,7 @@ new Chart(document.getElementById('myChart'), {
   }
 });
 
-// הגדרת גרף קווי
+
 new Chart(document.getElementById('myChart2'), {
   type: 'line',
   data: {
@@ -245,3 +245,5 @@ new Chart(document.getElementById('chart3'), {
     }
   }
 });
+
+

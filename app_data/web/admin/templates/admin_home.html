@@ -60,7 +60,7 @@
            alt="">
       <div class="ms-2">
         <h5 class="fs-6 mb-0">
-          <a class="text-decoration-none" href="#">Jone Doe</a>
+          <a class="text-decoration-none" href="#">Admin Toolkit</a>
         </h5>
         <p class="mt-1 mb-0">Lorem ipsum dolor sit amet consectetur.</p>
       </div>
@@ -72,18 +72,11 @@
     </div>
   
     <ul class="categories list-unstyled">
-      <li class="has-dropdown">
-        <i class="uil-estate fa-fw"></i><a href="#"> Dashboard</a>
-        <ul class="sidebar-dropdown list-unstyled">
-          <li><a href="#">Lorem ipsum</a></li>
-          <li><a href="#">ipsum dolor</a></li>
-          <li><a href="#">dolor ipsum</a></li>
-          <li><a href="#">amet consectetur</a></li>
-          <li><a href="#">ipsum dolor sit</a></li>
-        </ul>
+      <li class="">
+        <i class="uil-estate fa-fw"></i><a href="#" id="Dashboard_herf_ID"> Dashboard</a>
       </li>
       <li class="">
-        <i class="uil-folder"></i><a href="#"> File manager</a>
+        <i class="uil-folder"></i><a href="#" id="File_manager_herf_ID"> File manager</a>
       </li>
       <li class="has-dropdown">
         <i class="uil-calendar-alt"></i><a href="#"> Calender</a>
@@ -106,13 +99,13 @@
         </ul>
       </li>
       <li class="has-dropdown">
-        <i class="uil-shopping-cart-alt"></i><a href="#"> Ecommerce</a>
+        <i class="uil-shopping-cart-alt"></i><a href="#"> Users</a>
         <ul class="sidebar-dropdown list-unstyled">
-          <li><a href="#">Lorem ipsum</a></li>
-          <li><a href="#">ipsum dolor</a></li>
-          <li><a href="#">dolor ipsum</a></li>
-          <li><a href="#">amet consectetur</a></li>
-          <li><a href="#">ipsum dolor sit</a></li>
+          <li><a href="#" id="Users_Details_herf_ID">Details</a></li>
+          <li><a href="#" id="Users_Creation_herf_ID">Creation</a></li>
+          
+          
+       
         </ul>
       </li>
       <li class="has-dropdown">
@@ -157,12 +150,12 @@
         </ul>
       </li>
       <li class="">
-        <i class="uil-map-marker"></i><a href="#"> Maps</a>
+        <i class="uil-map-marker"></i><a href="#" id="Maps_herf_ID"> Maps</a>
       </li>
     </ul>
   </aside>
   
-  <section id="wrapper">
+  <section id="dashboard_sec">
     <nav class="navbar navbar-expand-md">
       <div class="container-fluid mx-2">
         <div class="navbar-header">
@@ -398,6 +391,72 @@
       </section>
     </div>
   </section>
+
+  <section id="file_manager_sec" style="display: none;">
+    
+    <input type="file" data-role="file" data-mode="drop">
+
+
+  </section>
+
+
+
+
+  <section id="map_sec" style="display: none;">
+
+  </section>
+
+
+
+  <script>
+
+    const Sections_dict = { 
+      'Dashboard_herf_ID': 'dashboard_sec',
+      'File_manager_herf_ID': 'file_manager_sec',
+      'Users_Details_herf_ID': 'section1',
+      'Users_Creation_herf_ID': 'section2',
+
+      'Maps_herf_ID': 'map_sec'
+    }
+
+    document.querySelectorAll('a[href]').forEach(link => {
+      link.addEventListener('click', function(event) {
+
+        const linkId = this.id; // 'this' refers to the clicked <a> element
+        const targetSectionId = Sections_dict[linkId]; // Find the target section ID from the dictionary
+        
+
+  
+        //use the targetSectionId to get the target section element
+        Object.values(Sections_dict).forEach(sectionId => {
+          const section = document.getElementById(sectionId);
+          if (section) {
+            section.style.display = 'none';
+          }
+        });
+
+
+        // Show the targeted section if it exists
+        if (targetSectionId) {
+          const targetSection = document.getElementById(targetSectionId);
+
+          console.log(targetSectionId);
+
+          if (targetSection) {
+            targetSection.style.display = 'block';
+          } else {
+            console.error(`No section found with ID: ${targetSectionId}`);
+          }
+        } else {
+          console.error(`No mapping found for link ID: ${linkId}`);
+        }
+
+          });//end of event listener
+        });//end of forEach loop
+
+  
+
+  </script>
 
 </body>
 </html>

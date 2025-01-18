@@ -29,7 +29,7 @@ body {
 	font-size: .925rem;
 }
 
-#wrapper {
+#dashboard_sec {
 	margin-left: var(--sidebar-width);
 	transition: all .3s ease-in-out;
 }
@@ -343,7 +343,7 @@ body {
 /* Start media query */
 
 @media (max-width: 767px) {
-	#wrapper {
+	#dashboard_sec {
 		margin: 0 !important
 	}
 	.statistics .box {
