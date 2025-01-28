@@ -3,7 +3,7 @@ import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../Functions_and_Classes')))
 
 try:
-    import Database_Class
+    import Database_Class #Properly imported
 except ImportError as e:
     print(f"Error importing Database_Class: {e}", file=sys.stderr)
     sys.exit(1)
