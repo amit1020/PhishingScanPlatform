@@ -24,6 +24,8 @@ services:
     networks:
       - my_network
 
+ 
+
 volumes:
   Volumes_app:  
 

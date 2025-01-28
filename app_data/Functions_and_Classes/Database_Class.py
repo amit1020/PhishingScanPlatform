@@ -18,8 +18,8 @@ sys.stdout.reconfigure(encoding='utf-8')
 class Database_Connection_Class():
     def __init__(self,user_type):
         #self.database_code_path = Path(__file__).parent.parent / "DatabaseCode.sql"
-        self.database_code_path = r"Functions_and_Classes/DB_codes/Users_DB.sql"#?NEED to check if the path is correct
-        
+        #self.database_code_path = "./Users_DB.sql"#!When I run the file directly
+        self.database_code_path = "C:/Users/amitl/Documents/PhishingScanPlatform/app_data/Functions_and_Classes/Users_DB.sql" #!When I import the file to another file
         conenction_data = read_ini_file("Database_Connection",None)
    
         try: #set the setting of the connection frin the ini file
@@ -75,7 +75,9 @@ class Database_Connection_Class():
             return None
     #*-----------------------------------------------------------------------------------------------------------
     
-    
+    #!Test function 
+    def Get_Connection_Status(self):
+        return self.connection.is_connected()
     
     
     
