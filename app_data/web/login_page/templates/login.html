@@ -66,20 +66,38 @@
                     <h2><i class="fa-solid fa-right-to-bracket"></i> Login</h2>
                     <input type="text"  placeholder="Username">
                     <input type="password"  placeholder="Password">
-                    <input type="submit" name="" value="Sign in" onclick="javascript:testing()">
+                    <input type="submit" name="" value="Sign in" onclick="javascript:Move_between_sections('authentication')">
                     <div class="group">
                         <a href="#">Forgot Password</a>
-                        <a href="#">Sign Up</a>
+                        <a id="sign_up_herf" href="#">Sign up</a>
                     </div>
                 </div>
+
+
                 <!-- TODO: Change authentication place-->
                 <div class="loginBx" id="authentication" style="display: none;">
                     <h2><i class="fa-solid fa-right-to-bracket"></i>2FA</h2>
                     <input type="text"  placeholder="Code">
                     <input type="submit" value="Submit" >
                 </div>
+
+                <div class="loginBx" id="registration" style="display: none;">
+                    <h2><i class="fa-solid fa-right-to-bracket"></i>Register</h2>
+                    <input type="text"  placeholder="Username" id="registration_username">
+                    <input type="password"  placeholder="Password" id="registration_password">
+                    <input type="email"  placeholder="Email" id="registration_email"> 
+                    
+                    <input type="submit" value="Submit" onclick="javascript:registration_function()">
+                </div>
             </div>
         </div>
     </div> 
+    <script>
+        document.getElementById("sign_up_herf").addEventListener("click", function(){
+            Move_between_sections("registration");
+        });
+
+    </script>
+        
 </body>
 </html>

@@ -1,14 +1,17 @@
 from flask import (
     Blueprint, render_template, request 
 )
-import sys, os
+
+
+import sys, os,json
 
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../Functions_and_Classes')))
 
 try:
-    import Database_Class #Properly imported
+    import Database_Class, TwoFA_functions #Properly imported
+    
 except ImportError as e:
     print(f"Error importing Database_Class: {e}", file=sys.stderr)
     sys.exit(1)
@@ -33,11 +36,33 @@ def product_home():
 def add_user():
     if request.method == 'POST':
         try:
-            name = request.form['name']
-            age = request.form['age']
-            return "Success"
+            data = request.get_json()
+            print(data["password"])
+            print(data["email"])
+            print(data["username"])
+        
+            #convert to json
+            return json.dumps("Success")
         except Exception as e:
             print(str(e))
-            return "Failed" 
+            return json.dumps("Error")
         
-    
+        
+        
+        
+        
+"""
+
+import requests
+
+
+
+r = requests.post(data={'name': 'Alice', 'age': 25}, url='http://127.0.0.1:1234/api/add_user')
+
+
+if r.status_code == 200:
+    print(r.text)
+else:   
+    print('Error:', r.status_code)
+
+"""
