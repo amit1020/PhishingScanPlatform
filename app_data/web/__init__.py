@@ -21,7 +21,9 @@ def Create_App():
     
     from web.api.routes import API_bp #import the blueprint object
     app.register_blueprint(API_bp,url_prefix='/api') #register the blueprint object in the app
-    
+
+
+
     #Handle errors(404), if the page was not found
     @app.errorhandler(404)
     def not_found_error(error):
@@ -30,6 +32,12 @@ def Create_App():
     register_sass_folders(app)
     
     return app
+
+
+
+
+
+
 
 
 #!Need  to make Config class in the config.py file, and import it here. check with ChatGPT: example:
