@@ -1,6 +1,12 @@
-from flask import Blueprint, render_template
+from flask import (
+    Blueprint, render_template, request
+    )
+
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../Functions_and_Classes')))
+
+
+
 
 try:
     import Database_Class #Properly imported
@@ -27,8 +33,15 @@ admin_bp = Blueprint(
 @admin_bp.route('/')
 def product_home():
     return render_template('admin_home.html')
-    
 
+
+
+    
+@admin_bp.route('/add_user', methods=['POST'])
+def add_user(data):
+    data = request.form
+    print(data)
+    pass
 
 
 def Test():

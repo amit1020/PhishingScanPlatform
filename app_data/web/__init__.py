@@ -1,6 +1,8 @@
 from flask import Flask
 from .assets import register_sass_folders
 
+
+
 def Create_App():
     app = Flask(__name__)
     
@@ -16,6 +18,9 @@ def Create_App():
     
     from web.login_page.routes import login_bp #import the blueprint object
     app.register_blueprint(login_bp,url_prefix='/login') #register the blueprint object in the app
+    
+    from web.api.routes import API_bp #import the blueprint object
+    app.register_blueprint(API_bp,url_prefix='/api') #register the blueprint object in the app
     
     #Handle errors(404), if the page was not found
     @app.errorhandler(404)
