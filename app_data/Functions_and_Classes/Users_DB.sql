@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS `Links_Table` (
 
 CREATE TABLE IF NOT EXISTS `Users_Technical_Data_Table` (
   `userID` varchar(18) DEFAULT NULL,
-  `2FA_key` varchar(32) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `2FA_enabled` tinyint(1) NOT NULL,
@@ -42,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `Users_Table` (
   `name` varchar(20) NOT NULL,
   `password` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
+  `2FA_key` varchar(32) DEFAULT NULL,
   `organization` varchar(100) DEFAULT NULL,
   `country` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `phone_number` varchar(18) NOT NULL,
@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS `Users_Table` (
   PRIMARY KEY (`userID`),
   UNIQUE KEY `Users_UNIQUE` (`email`),
   UNIQUE KEY `Users_UNIQUE_1` (`phone_number`)
+  UNIQUE KEY `Users_Table_UNIQUE` (`2FA_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 

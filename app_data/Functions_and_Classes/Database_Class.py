@@ -79,7 +79,25 @@ class Database_Connection_Class():
     def Get_Connection_Status(self):
         return self.connection.is_connected()
     
+    #*-------------------------------Create user----------------------------------------------------------------------------
     
+    def Create_Client(self,Data:dict) -> bool:
+        if Data is not None:
+            try:
+                sql = "INSERT INTO Users_Table (name, password, email) VALUES (%s, %s, %s)"
+                vals = (Data['name'],Data['password'],Data['email'])
+                self.mycursor.execute(sql,vals)
+                self.connection.commit()                
+                print(f"Success to add new client - {Data['FullName']}")
+                
+                return True
+
+            except Exception as error:
+                print(f"Error to add new client - {Data['FullName']} code problem:\n[!] {error}")
+        
+                return False
+
+
     
     
     
@@ -119,7 +137,7 @@ class Database_Connection_Class():
                 try:
                     self.mycursor.execute(command) #execute the command 
                     self.connection.commit()
-                    print(f"Executed: {command}")
+                    
                 except mysql.connector.Error as err:
                     print(f"Error: {err}")
                     self.connection.rollback()
@@ -148,6 +166,7 @@ if __name__ == "__main__":
     
     t = Database_Connection_Class("a")
     with Database_Connection_Class("a") as testing: #in order to close the connection after using the class
+        print(t.Get_Connection_Status())
         '''
         result_bool,result=testing.Add_Links(
                             {"purpose":"threat_catagories",
@@ -166,13 +185,14 @@ if __name__ == "__main__":
         
         '''
         
-        print(testing.Get_Links("threat_catagories"))
+        
         
         
 else:
     pass
     #from app_data.Functions_and_Classes.General_Functions import read_ini_file #When I import the file to another file
                     
+
 
 
 

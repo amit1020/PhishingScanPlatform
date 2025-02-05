@@ -11,6 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../F
 
 try:
     import Database_Class, TwoFA_functions #Properly imported
+    my_db = Database_Class.Database('localhost')
     
 except ImportError as e:
     print(f"Error importing Database_Class: {e}", file=sys.stderr)
@@ -37,9 +38,12 @@ def add_user():
     if request.method == 'POST':
         try:
             data = request.get_json()
-            print(data["password"])
-            print(data["email"])
-            print(data["username"])
+            """_data consist of:
+                    - username
+                    - email
+                    - password
+            """
+            
         
             #convert to json
             return json.dumps("Success")
