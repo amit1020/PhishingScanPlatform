@@ -10,7 +10,7 @@ HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","
 
 
 
-#?sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding='utf-8')
 
 
 
@@ -18,15 +18,15 @@ HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","
 class Database_Connection_Class():
     def __init__(self,user_type):
         #self.database_code_path = Path(__file__).parent.parent / "DatabaseCode.sql"
-        self.database_code_path = "./DB_codes/Users_DB.sql"#?NEED to check if the path is correct
-        
+        #self.database_code_path = "./Users_DB.sql"#!When I run the file directly
+        self.database_code_path = "C:/Users/amitl/Documents/PhishingScanPlatform/app_data/Functions_and_Classes/Users_DB.sql" #!When I import the file to another file
         conenction_data = read_ini_file("Database_Connection",None)
    
         try: #set the setting of the connection frin the ini file
             self.connection = mysql.connector.connect(
                 host=conenction_data['MYSQL_HOST'],
-                user=conenction_data['MYSQL_USER'],
-                password=conenction_data['MYSQL_PASSWORD'],
+                user='root',
+                password='dsmf9832bd238u0dj',
                 port=conenction_data['MYSQL_PORT'],
                 database=conenction_data['MYSQL_DATABASE'],
                 charset='utf8mb4',
@@ -75,7 +75,9 @@ class Database_Connection_Class():
             return None
     #*-----------------------------------------------------------------------------------------------------------
     
-    
+    #!Test function 
+    def Get_Connection_Status(self):
+        return self.connection.is_connected()
     
     
     
@@ -143,7 +145,9 @@ class Database_Connection_Class():
         
 if __name__ == "__main__":
     from General_Functions import read_ini_file #When I run the file directly
-    with Database_Connection_Class() as testing: #in order to close the connection after using the class
+    
+    t = Database_Connection_Class("a")
+    with Database_Connection_Class("a") as testing: #in order to close the connection after using the class
         '''
         result_bool,result=testing.Add_Links(
                             {"purpose":"threat_catagories",
@@ -161,11 +165,13 @@ if __name__ == "__main__":
             print("didn't work")
         
         '''
+        
         print(testing.Get_Links("threat_catagories"))
         
         
 else:
-    from app_data.Functions_and_Classes.General_Functions import read_ini_file #When I import the file to another file
+    pass
+    #from app_data.Functions_and_Classes.General_Functions import read_ini_file #When I import the file to another file
                     
 
 

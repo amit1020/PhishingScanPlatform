@@ -247,3 +247,18 @@ new Chart(document.getElementById('chart3'), {
 });
 
 
+function Send_POST_Test(){
+  var url = "http://localhost:3000/api/PostTest";
+  var data = {name: "John Doe", age: 30};
+  fetch(url, {
+    method: 'POST', 
+    body: JSON.stringify(data), 
+    headers:{
+      'Content-Type': 'application/json'
+    }
+  }).then(res => res.json())
+  .then(response => console.log('Success:', JSON.stringify(response)))
+  .catch(error => console.error('Error:', error));
+
+
+}
