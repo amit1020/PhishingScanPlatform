@@ -167,6 +167,7 @@ if __name__ == "__main__":
     t = Database_Connection_Class("a")
     with Database_Connection_Class("a") as testing: #in order to close the connection after using the class
         print(t.Get_Connection_Status())
+        #t.Create_Client({"name":"amit","password":"1234","email":"sdfdsfsd"})
         '''
         result_bool,result=testing.Add_Links(
                             {"purpose":"threat_catagories",

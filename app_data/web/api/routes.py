@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../F
 
 try:
     import Database_Class, TwoFA_functions #Properly imported
-    my_db = Database_Class.Database('localhost')
+    my_db = Database_Class.Database_Connection_Class('lt')
     
 except ImportError as e:
     print(f"Error importing Database_Class: {e}", file=sys.stderr)
