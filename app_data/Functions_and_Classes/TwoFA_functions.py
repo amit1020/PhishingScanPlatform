@@ -1,5 +1,8 @@
 import pyotp,time,qrcode,PIL
 
+from pathlib import Path #This module provides an object-oriented interface for working with filesystem paths
+ 
+
 
 
 # Generate a 2FA secret
@@ -11,15 +14,25 @@ def generate_2fa_secret():
 
 
 
-def Create_QR(key:str,name:str) -> bool:
-    if key == None or name == None:
+def Create_QR(key:str,user_name:str) -> bool:
+    """_summary_
+
+    Args:
+        key (str): user_key
+        user_name (str): user_name
+
+    Returns:
+        bool: _description_
+    """
+    if key == None or user_name == None:
         return False
     try:
-        uri = pyotp.totp.TOTP(key).provisioning_uri(name=name, 
+        uri = pyotp.totp.TOTP(key).provisioning_uri(name=user_name, 
                                                 issuer_name="Phishing_Scan_Platform")#create the uri - URL identification of the 2FA 
         
-        QRC = qrcode.make(uri).save(f"{name}.png") #Create the QR code and save it to the file
+        QRC = qrcode.make(uri).save(Path(__file__).parent.parent / f"web/login_page/static/QR_image/{user_name}.png") #Create the QR code and save it to the file
         return True
+    
     except Exception as e:
         print(e)#!Remove this line
         return False

@@ -1,9 +1,9 @@
 import sys,os,configparser,mysql.connector
 from mysql.connector import Error
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path #This module provides an object-oriented interface for working with filesystem paths
 from General_Functions import read_ini_file
-
+import TwoFA_functions 
 
 
 HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","TRACE"]
@@ -84,23 +84,26 @@ class Database_Connection_Class():
     
     
     #*-------------------------------Create user----------------------------------------------------------------------------
-    def Create_Client(self,Data:dict,twoFA_key_var:str) -> str:
+    def Create_Client(self,Data:dict) -> bool:
         if Data is not None:
+            
             try:
+                twoFA_key_var = TwoFA_functions.generate_2fa_secret()#create the key for the 2FA
                 sql = "INSERT INTO Users_Table (name, password, email, 2FA_key, phone_number) VALUES (%s, %s, %s, %s, %s)"
                 vals = (Data['name'],Data['password'],Data['email'], twoFA_key_var, Data['phone'])
-                print("here")                
-
                 self.mycursor.execute(sql,vals)
                 self.connection.commit()
-                print("here")                
-                return f"Success to add new client - {Data['name']}"
                 
+                
+                #The path of the QR code where be saved(Path(....)....
+                TwoFA_functions.Create_QR(twoFA_key_var,Data['name']) #Create the QR code for the 2FA and save it at /web/login_page/static/QR_image/   
+                #return f"Success to add new client - {Data['name']}"
+             
                 return True
 
             except Exception as error:
                 print(f"{error}")
-                return f"Error to add new client - {Data['name']} code problem:\n[!] {error}"
+                #return f"Error to add new client - {Data['name']} code problem:\n[!] {error}"
         
                 return False
 
