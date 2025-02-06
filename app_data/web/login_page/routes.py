@@ -15,9 +15,6 @@ login_bp = Blueprint(
 
 
 
-
-
-
 @login_bp.route('/', methods=['GET'])
 def user_hello():
     return render_template('/login.html') 

@@ -1,12 +1,14 @@
 from flask import (
-    Blueprint, render_template, request,url_for,jsonify
+    Blueprint, render_template, request 
 )
-import sys, os,json,base64,io
-from PIL import Image
+
+
+import sys, os,json
 
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../Functions_and_Classes')))
+
 try:
     import Database_Class, TwoFA_functions #Properly imported
     my_db = Database_Class.Database_Connection_Class('lt')
@@ -18,12 +20,10 @@ except ImportError as e:
 
 
 
-
-
-
-
 #Define the blueprint: 'product', set its url prefix: app.url/product
 API_bp = Blueprint('API_bp', __name__)
+
+
 
 
 
@@ -31,27 +31,12 @@ API_bp = Blueprint('API_bp', __name__)
 @API_bp.route('/')
 def product_home():
     return "hello world"
-
-
-
-
-
-
-@API_bp.route('/auth/', methods=['POST'])
-def auth():
-    pass
-    
-    
-    
-    
-    
     
     
 @API_bp.route('/add_user/', methods=['POST'])
 def add_user():
     if request.method == 'POST':
         try:
-            #Make roles for the data 
             data = request.get_json()
             """_data consist of:
                     - name
@@ -59,16 +44,18 @@ def add_user():
                     - password
                     - phone
             """
-            #!Check if the data is valid
-            if my_db.Create_Client(Data=data):
-                #* If the user was created successfully and the QR was created successfully 
-                return json.dumps("Success")
-                
-            else:
-                return json.dumps("Error")      
-                    
-            #convert to json
+            key = TwoFA_functions.generate_2fa_secret()
+
+            result = my_db.Create_Client(Data=data,twoFA_key_var=key)         
+             
+
+            return json.dumps(result)
+         
             
+            
+        
+            #convert to json
+            return json.dumps("Success")
         except Exception as e:
             print(str(e))
             return json.dumps("Error")
