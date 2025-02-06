@@ -39,10 +39,19 @@ def add_user():
         try:
             data = request.get_json()
             """_data consist of:
-                    - username
+                    - name
                     - email
                     - password
+                    - phone
             """
+            key = TwoFA_functions.generate_2fa_secret()
+
+            result = my_db.Create_Client(Data=data,twoFA_key_var=key)         
+             
+
+            return json.dumps(result)
+         
+            
             
         
             #convert to json

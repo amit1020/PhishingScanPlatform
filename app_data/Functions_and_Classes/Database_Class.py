@@ -79,21 +79,28 @@ class Database_Connection_Class():
     def Get_Connection_Status(self):
         return self.connection.is_connected()
     
-    #*-------------------------------Create user----------------------------------------------------------------------------
     
-    def Create_Client(self,Data:dict) -> bool:
+    
+    
+    
+    #*-------------------------------Create user----------------------------------------------------------------------------
+    def Create_Client(self,Data:dict,twoFA_key_var:str) -> str:
         if Data is not None:
             try:
-                sql = "INSERT INTO Users_Table (name, password, email) VALUES (%s, %s, %s)"
-                vals = (Data['name'],Data['password'],Data['email'])
+                sql = "INSERT INTO Users_Table (name, password, email, 2FA_key, phone_number) VALUES (%s, %s, %s, %s, %s)"
+                vals = (Data['name'],Data['password'],Data['email'], twoFA_key_var, Data['phone'])
+                print("here")                
+
                 self.mycursor.execute(sql,vals)
-                self.connection.commit()                
-                print(f"Success to add new client - {Data['FullName']}")
+                self.connection.commit()
+                print("here")                
+                return f"Success to add new client - {Data['name']}"
                 
                 return True
 
             except Exception as error:
-                print(f"Error to add new client - {Data['FullName']} code problem:\n[!] {error}")
+                print(f"{error}")
+                return f"Error to add new client - {Data['name']} code problem:\n[!] {error}"
         
                 return False
 
@@ -167,7 +174,7 @@ if __name__ == "__main__":
     t = Database_Connection_Class("a")
     with Database_Connection_Class("a") as testing: #in order to close the connection after using the class
         print(t.Get_Connection_Status())
-        #t.Create_Client({"name":"amit","password":"1234","email":"sdfdsfsd"})
+        
         '''
         result_bool,result=testing.Add_Links(
                             {"purpose":"threat_catagories",

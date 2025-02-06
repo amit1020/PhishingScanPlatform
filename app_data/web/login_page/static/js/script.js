@@ -43,6 +43,7 @@ async function registration_function(){
     username = document.getElementById("registration_username").value;
     password = document.getElementById("registration_password").value;
     email = document.getElementById("registration_email").value;
+    phone_number = document.getElementById("registration_phone_number").value;
 
     console.log(username);
     console.log(password);
@@ -50,9 +51,10 @@ async function registration_function(){
    await fetch("http://127.0.0.1:1234/api/add_user/", {
         method: "POST",
         body: JSON.stringify({
-            username: username, 
+            name: username, 
             password: password,
-            email: email
+            email: email,
+            phone: phone_number
         }),
         headers: {
             "Content-Type": "application/json",
