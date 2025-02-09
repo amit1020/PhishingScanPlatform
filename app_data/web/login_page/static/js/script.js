@@ -32,55 +32,54 @@ function Move_between_sections(sec){
 
 
 
-async function Send_Data_(){}
-
+    async function Send_Data_(data, url) {
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                body: data,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            // If the response is not OK (not in 200-299 range), throw an error
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+    
+            // Convert response to JSON
+            const twoFA_key = await response.json();
+            return twoFA_key;
+    
+        } catch (error) {
+            console.error("Fetch error:", error);
+            return null; // Return null in case of failure
+        }
+    };//!Close the function
 
 
 async function registration_function(){
-    //const formData = new URLSearchParams();
+    url = "http://127.0.0.1:1234/api/add_user/";
 
-
-    //formData.set("username", document.getElementById("registration_username").value);
-    //formData.set("password", document.getElementById("registration_password").value);
-    //formData.set("email", document.getElementById("registration_email").value);
-    //username = document.getElementById("registration_username").value;
-    //password = document.getElementById("registration_password").value;
-    //email = document.getElementById("registration_email").value;
-    //phone_number = document.getElementById("registration_phone_number").value;
     message_body = JSON.stringify([{
             name: document.getElementById("registration_username").value, 
             password: document.getElementById("registration_password").value,
             email: document.getElementById("registration_email").value,
             phone: document.getElementById("registration_phone_number").value
         }]);
-    
-    //"http://127.0.0.1:1234/api/add_user/",
-   await fetch("http://127.0.0.1:1234/api/add_user/", {
-        method: "POST",
-        body: message_body,
-        headers: {
-            "Content-Type": "application/json",
-            //"Authorization": "your-token-here",
-        },
 
-    }).then(response => {
-          // If the response is not 2xx, throw an error
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
+    
+        const twoFA_key = await Send_Data_(message_body, url);
+
+        if (twoFA_key) { // Ensure key exists before using it
+            Move_between_sections("2FA_Verification_section");
+            document.getElementById("p_key").innerHTML = "Your key is: " + twoFA_key;
+        } else {
+            console.error("Failed to retrieve 2FA key.");
         }
     
-        // If the response is 200 OK, return the response in JSON format.
-        return response.json();
-
-    })//! Close the fetch function
-    .then((twoFA_key) => {
-        Move_between_sections("2FA_Verification_section");
-        document.getElementById("p_key").innerHTML = "Your key is: " + twoFA_key;
-    })// Close the then function
-
-    .catch((error) => console.error("Fetch error:", error)); // In case of an error, it will be captured and logged.
-    Clear_registration();
-    };
+        Clear_registration(); // Assuming this function clears input fields  
+    };//!Close the function
 
 
 
