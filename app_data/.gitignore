@@ -3,7 +3,9 @@ venv/
 
 # Ignore environment variables file
 *.ini
-.env_user_db
+
+# Ignore Python bytecode files
+.env*
 
 # Ignore Python cache files
 **/__pycache__/
@@ -21,3 +23,6 @@ Animations/
 
 # Ignore Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+#vscode
+.vscode/

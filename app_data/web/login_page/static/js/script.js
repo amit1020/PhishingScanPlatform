@@ -1,4 +1,4 @@
-sections_array = ["loginBx", "registration", "authentication"];
+sections_array = ["loginBx", "registration", "authentication","2FA_Verification_section"];
 
 function Move_between_sections(sec){
     sections_array.forEach(function(item){
@@ -32,6 +32,9 @@ function Move_between_sections(sec){
 
 
 
+async function Send_Data_(){}
+
+
 
 async function registration_function(){
     //const formData = new URLSearchParams();
@@ -40,22 +43,21 @@ async function registration_function(){
     //formData.set("username", document.getElementById("registration_username").value);
     //formData.set("password", document.getElementById("registration_password").value);
     //formData.set("email", document.getElementById("registration_email").value);
-    username = document.getElementById("registration_username").value;
-    password = document.getElementById("registration_password").value;
-    email = document.getElementById("registration_email").value;
-    phone_number = document.getElementById("registration_phone_number").value;
-
-    console.log(username);
-    console.log(password);
+    //username = document.getElementById("registration_username").value;
+    //password = document.getElementById("registration_password").value;
+    //email = document.getElementById("registration_email").value;
+    //phone_number = document.getElementById("registration_phone_number").value;
+    message_body = JSON.stringify([{
+            name: document.getElementById("registration_username").value, 
+            password: document.getElementById("registration_password").value,
+            email: document.getElementById("registration_email").value,
+            phone: document.getElementById("registration_phone_number").value
+        }]);
+    
     //"http://127.0.0.1:1234/api/add_user/",
    await fetch("http://127.0.0.1:1234/api/add_user/", {
         method: "POST",
-        body: JSON.stringify({
-            name: username, 
-            password: password,
-            email: email,
-            phone: phone_number
-        }),
+        body: message_body,
         headers: {
             "Content-Type": "application/json",
             //"Authorization": "your-token-here",
@@ -71,14 +73,34 @@ async function registration_function(){
         return response.json();
 
     })//! Close the fetch function
-    .then((data) => console.log(data)) // You can continue to do something to the response.
+    .then((twoFA_key) => {
+        Move_between_sections("2FA_Verification_section");
+        document.getElementById("p_key").innerHTML = "Your key is: " + twoFA_key;
+    })// Close the then function
+
     .catch((error) => console.error("Fetch error:", error)); // In case of an error, it will be captured and logged.
-};
+    Clear_registration();
+    };
 
 
 
 
-function submitcode(){
-    console.log("submit code");
-};
+
+
+
+
+
+function verify_otp(){
+
+};//Close the function
+    
+
+
+//clear the registration form
+function Clear_registration(){
+    document.getElementById("registration_username").value = "";
+    document.getElementById("registration_password").value = "";
+    document.getElementById("registration_email").value = "";
+    document.getElementById("registration_phone_number").value = "";
+}
 

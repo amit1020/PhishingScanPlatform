@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, request 
+    Blueprint, render_template, request,jsonify
 )
 
 
@@ -45,20 +45,25 @@ def add_user():
                     - phone
             """
             key = TwoFA_functions.generate_2fa_secret()
+            # Check if data is received as a list
+            if isinstance(data, list) and len(data) > 0:
+                user_data = data[0]  # Extract the first dictionary from the list
+            else:
+                return jsonify({"error": "Invalid data format"}), 400
+                
 
-            result = my_db.Create_Client(Data=data,twoFA_key_var=key)         
+            result = my_db.Create_Client(Data=user_data,twoFA_key_var=key)#Save the process of creating the user - can be True/False
+            if not result: #If the user was not created
+                return 404         
              
+            #TODO - Check if the data is valied and if the user was added to the database 
+            return json.dumps(key)
 
-            return json.dumps(result)
-         
-            
-            
-        
             #convert to json
             return json.dumps("Success")
         except Exception as e:
             print(str(e))
-            return json.dumps("Error")
+            return 404
         
         
         

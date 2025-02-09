@@ -84,23 +84,22 @@ class Database_Connection_Class():
     
     
     #*-------------------------------Create user----------------------------------------------------------------------------
-    def Create_Client(self,Data:dict,twoFA_key_var:str) -> str:
+    def Create_Client(self,Data:dict,twoFA_key_var:str) -> bool:
         if Data is not None:
             try:
                 sql = "INSERT INTO Users_Table (name, password, email, 2FA_key, phone_number) VALUES (%s, %s, %s, %s, %s)"
                 vals = (Data['name'],Data['password'],Data['email'], twoFA_key_var, Data['phone'])
-                print("here")                
-
+                            
                 self.mycursor.execute(sql,vals)
                 self.connection.commit()
-                print("here")                
-                return f"Success to add new client - {Data['name']}"
+                                
+                #return f"Success to add new client - {Data['name']}"
                 
                 return True
 
             except Exception as error:
                 print(f"{error}")
-                return f"Error to add new client - {Data['name']} code problem:\n[!] {error}"
+                #return f"Error to add new client - {Data['name']} code problem:\n[!] {error}"
         
                 return False
 
