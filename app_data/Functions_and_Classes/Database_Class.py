@@ -81,6 +81,38 @@ class Database_Connection_Class():
     
     
     
+    def Vertification_2FA(self,Name:str) -> bool:
+        if Name is not None:
+            try:
+                self.mycursor.execute(f"SELECT 2FA_key FROM Users_Table WHERE name='{Name}'")# get from the database all names of clients
+                results = self.mycursor.fetchall()
+                if len(results) == 0:
+                    return False
+                return results[0][0]
+            
+            except Exception as e:
+                print(e)
+                return False
+        return False
+    
+
+    
+    def Get_user_data(self,table_name:str,columns:str,condition:str=None,value:str=None) -> list[dict]:
+        if self.mycursor is not None:
+            if condition is not None and value is not None:
+                try:
+                    self.mycursor.execute(f"SELECT {columns} FROM {table_name} WHERE {condition}='{value}'")# get from the database all names of clients
+                    results = self.mycursor.fetchall()
+                    rows = []
+                    for row in results:
+                        rows.append(row)
+                    
+                    return rows
+                except Exception as e:
+                    print(e)
+                    return None
+        return None
+    
     
     
     #*-------------------------------Create user----------------------------------------------------------------------------
@@ -173,6 +205,7 @@ if __name__ == "__main__":
     t = Database_Connection_Class("a")
     with Database_Connection_Class("a") as testing: #in order to close the connection after using the class
         print(t.Get_Connection_Status())
+        
         
         '''
         result_bool,result=testing.Add_Links(

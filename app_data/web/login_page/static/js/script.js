@@ -1,5 +1,9 @@
 sections_array = ["loginBx", "registration", "authentication","2FA_Verification_section"];
 
+//For 2FA vertification
+let USERNAME = undefined;
+
+
 function Move_between_sections(sec){
     sections_array.forEach(function(item){
         if(item != sec){
@@ -61,6 +65,7 @@ function Move_between_sections(sec){
 async function registration_function(){
     url = "http://127.0.0.1:1234/api/add_user/";
 
+    USERNAME = document.getElementById("registration_username").value;
     message_body = JSON.stringify([{
             name: document.getElementById("registration_username").value, 
             password: document.getElementById("registration_password").value,
@@ -83,13 +88,21 @@ async function registration_function(){
 
 
 
+async function verify_otp(){
+        url = "http://127.0.0.1:1234/api/Vertification/2FA"
+        message_body = JSON.stringify([{
+            username: USERNAME,
+            otp: document.getElementById("OTP_code").value
+        }]);
 
+        const result = await Send_Data_(message_body, url);
+    
+        if (result == "Success") { // Ensure key exists before using it
+            console.log("2FA verification successful");
+        } else {
+            console.error("Failed to retrieve 2FA key.");
+        }
 
-
-
-
-
-function verify_otp(){
 
 };//Close the function
     

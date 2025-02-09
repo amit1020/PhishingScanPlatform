@@ -10,7 +10,7 @@ import sys, os,json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../Functions_and_Classes')))
 
 try:
-    import Database_Class, TwoFA_functions #Properly imported
+    import Database_Class, General_Functions #Properly imported
     my_db = Database_Class.Database_Connection_Class('lt')
     
 except ImportError as e:
@@ -33,6 +33,39 @@ def product_home():
     return "hello world"
     
     
+@API_bp.route('/Vertification/2FA', methods=['POST'])
+def Vertification_2FA():
+    if request.method == 'POST':
+        try:
+            data = request.get_json()
+            """_data consist of:
+                - username
+                - otp
+            """
+            # Check if data is received as a list
+            if isinstance(data, list) and len(data) > 0:
+                result = my_db.Vertification_2FA(Name=data[0].get('username'))#Return the 2FA key
+                
+                if result is not None: 
+                    
+                    if General_Functions.verify_otp(result,int(data[0].get('otp').strip())):
+                        #TODO when the result is True, redirect to user page with the user data
+                        return jsonify("Success")#If the otp is correct
+                    else:
+                        return jsonify("Failed")
+                    
+                return jsonify("Failed")#If the user was not created
+            else:
+                return jsonify({"error": "Invalid data format"}), 400
+            
+
+        except Exception as e:
+            print(str(e))
+            return 404
+        
+
+    
+    
 @API_bp.route('/add_user/', methods=['POST'])
 def add_user():
     if request.method == 'POST':
@@ -44,7 +77,7 @@ def add_user():
                     - password
                     - phone
             """
-            key = TwoFA_functions.generate_2fa_secret()
+            key = General_Functions.generate_2fa_secret()
             # Check if data is received as a list
             if isinstance(data, list) and len(data) > 0:
                 user_data = data[0]  # Extract the first dictionary from the list
@@ -65,10 +98,12 @@ def add_user():
             print(str(e))
             return 404
         
+        """
+        table_name:str,columns:str,condition:str=None,value:str=None
         
+        """
         
-        
-        
+ 
 """
 
 import requests
