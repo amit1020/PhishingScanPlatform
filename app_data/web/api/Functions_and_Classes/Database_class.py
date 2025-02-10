@@ -23,11 +23,6 @@ class Database_Connection_Class:
         load_dotenv(env_path)
         
 
-        # Debugging: Print loaded variables
-        print("MYSQL_HOST:", os.getenv("MYSQL_HOST"))
-        print("MYSQL_USER:", os.getenv("MYSQL_USER"))
-        print("MYSQL_DATABASE:", os.getenv("MYSQL_DATABASE"))
-        print("MYSQL_PORT:", os.getenv("MYSQL_PORT"))
 
         self.host = os.getenv("MYSQL_HOST", "localhost")
         self.user = os.getenv("MYSQL_USER", "amit1020_admin_db")
@@ -39,10 +34,12 @@ class Database_Connection_Class:
         self.connect_with_retry()
 
 
+    #Try to connects the dayabase with multiple retries
     def connect_with_retry(self, retries=10, delay=5):
         for attempt in range(retries):
             try:
-                print(f"🟡 Attempting MySQL connection (Try {attempt + 1}/{retries})...")
+                #print(f" Attempting MySQL connection (Try {attempt + 1}/{retries})...")
+                #creates the connection var 
                 self.connection = mysql.connector.connect(
                     host=self.host,
                     user=self.user,
@@ -51,16 +48,16 @@ class Database_Connection_Class:
                     port=self.port,
                     charset="utf8mb4"
                 )
-                print("✅ Connected to MySQL successfully!")
+                
                 if self.connection.is_connected():
+                    #?If the connection is success, create the cursor and build the database
                     self.mycursor = self.connection.cursor()
                     self.Build_database()
                 return
             except mysql.connector.Error as err:
-                print(f"❌ MySQL connection failed: {err}")
                 time.sleep(delay)
-
-        raise Exception("🔥 MySQL is not available after multiple retries.")
+        #If the connection is unable to connect after multiple retries, raise an exception 
+        raise Exception("MySQL is not available after multiple retries.")
     
     #*-------------------------------Get_Links----------------------------------------------------------------------------
     def Get_Links(self,api_method_type:str) -> dict: #Get the links from the database for Send_requests_api function
@@ -190,18 +187,17 @@ class Database_Connection_Class:
      
     #*if the database isnt exist, the pythob will  Build the database from the sql file 
     def Build_database(self):
-        print("🔹 Running database setup...")
+        #print("Running database setup...")
         with open(self.database_code_path, 'r', encoding='utf-8') as file:
             sql_commands = file.read()
 
         for command in sql_commands.split(';'):
             if command.strip():
                 try:
-                    print(f"🔹 Executing SQL: {command[:100]}")  # Log first 100 chars
                     self.mycursor.execute(command)
                     self.connection.commit()
                 except mysql.connector.Error as err:
-                    print(f"❌ Error executing SQL: {err}")
+                    #print(f"Error executing SQL: {err}")
                     self.connection.rollback()
     #*-----------------------------------------------------------------------------------------------------------                
                     

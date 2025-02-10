@@ -63,38 +63,32 @@ def Vertification_2FA():
     
 @API_bp.route('/add_user/', methods=['POST'])
 def add_user():
-    print(f"🔹 Received request: {request.method} {request.url}")
-    print(f"🔹 Headers: {request.headers}")
-    print(f"🔹 Raw body: {request.data.decode('utf-8')}")  # Log raw request body
-
+    
     if request.method == 'POST':
         try:
-            print(f"🔹 Received request: {request.method} {request.url}")
-            print(f"🔹 Headers: {request.headers}")
-            print(f"🔹 Raw body: {request.data.decode('utf-8')}")  # Log raw request body
 
             data = request.get_json()
-            print(f"🔹 Parsed JSON: {data}")
+            
 
             # Ensure data is a dictionary (not a list)
             if not isinstance(data, dict):
                 return jsonify({"error": "Invalid data format, expected an object"}), 400
 
-            key = generate_2fa_secret()
-            result = my_db.Create_Client(Data=data, twoFA_key_var=key)
+            key = generate_2fa_secret() 
+            
+            result = my_db.Create_Client(Data=data, twoFA_key_var=key)#Creates the user, return True id successful, False if not
 
             if not result:  
                 return jsonify({"error": "User creation failed"}), 400  
 
-            return jsonify({"2FA_key": key, "message": "User created successfully"}), 200  
+            return jsonify({"2FA_key": key, "message": "User created successfully"}), 200  #Return the key to the user for connect the 2FA app
 
         except Exception as e:
-            print("hereeeeeeeee")
-            print(f"❌ Exception: {str(e)}", file=sys.stderr)
+            
             return jsonify({"error": str(e)}), 500  
 
-    else:
-        print("sadasdasdasdasdasdasdsdas")
+    return jsonify({"error": "Invalid request method"}), 405
+        
 """
 
 import requests

@@ -1,4 +1,6 @@
 #!/bin/sh
+# wait-for-it.sh, try to connects the database 
+
 set -e
 
 host="$1"

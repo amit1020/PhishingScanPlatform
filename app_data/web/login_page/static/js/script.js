@@ -19,23 +19,9 @@ function Move_between_sections(sec){
 
 
 
-    //let data = [];
-    //data.push(document.getElementById("registration_username").value);
-    //data.push(document.getElementById("registration_password").value);
-    //data.push(document.getElementById("registration_email").value);
-    //console.log(data);
-
-    //formData.set("username", document.getElementById("registration_username").value);
-    //formData.set("password", document.getElementById("registration_password").value);
-    //formData.set("email", document.getElementById("registration_email").value);
-    //console.log(formData);
-    
-
 
     //https://www.freecodecamp.org/news/how-to-send-http-requests-using-javascript/
     async function Send_Data_(data, url) {
-        console.log(`🔹 Sending request to: ${url}`);
-        console.log(`🔹 Request body:`, data);
         try {
             const response = await fetch(url, {
                 method: "POST",
@@ -64,6 +50,7 @@ function Move_between_sections(sec){
 
 
     async function registration_function() {
+        //The meaning of this line is to get the current URL of the page and add the path to the API
         let url = `${window.location.origin}/api/add_user/`;
     
         //Makes the USERNAME available globally
@@ -93,9 +80,10 @@ function Move_between_sections(sec){
     
     
     async function verify_otp() {
+        //The meaning of this line is to get the current URL of the page and add the path to the API
         let url = `${window.location.origin}/api/Vertification/2FA`;
 
-    
+        
         let message_body = JSON.stringify({
             username: USERNAME,
             otp: document.getElementById("OTP_code").value
