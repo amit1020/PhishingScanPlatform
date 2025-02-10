@@ -24,11 +24,11 @@ class Database_Connection_Class:
         
 
 
-        self.host = os.getenv("MYSQL_HOST", "localhost")
-        self.user = os.getenv("MYSQL_USER", "amit1020_admin_db")
-        self.password = os.getenv("MYSQL_PASSWORD", "78b8t23b8te8b3x298b")
-        self.port = int(os.getenv("MYSQL_PORT", "3306"))
-        self.database = os.getenv("MYSQL_DATABASE", "phishing-scan-platform-db")
+        self.host = os.getenv("MYSQL_HOST", "-----")
+        self.user = os.getenv("MYSQL_USER", "------")
+        self.password = os.getenv("MYSQL_PASSWORD", "------")
+        self.port = int(os.getenv("MYSQL_PORT", "-----"))
+        self.database = os.getenv("MYSQL_DATABASE", "------")
         self.connection = None
 
         self.connect_with_retry()
