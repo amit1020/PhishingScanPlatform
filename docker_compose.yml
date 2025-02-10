@@ -1,0 +1,44 @@
+
+services:
+  my_sql:
+    image: mysql:8.0
+    container_name: phishing-scan-platform-db
+    env_file:
+      - app_data/.env_user_db #Load the .env file to the container
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - my_network
+    restart: always #If the container has stopped, it will restart automatically
+    healthcheck:  #Check if the container is healthy for another service
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5 #Fails after 5 unsuccessful checks
+      start_period: 30s #Wait 30 seconds before starting the health check
+
+  web:
+    container_name: python_web_service_app
+    build: .
+    depends_on:
+      my_sql:
+        condition: service_healthy #Wait for the my_sql service to be healthy 
+    environment:
+      MYSQL_HOST: phishing-scan-platform-db #Passes database host to the app
+      PYTHONPATH: /app
+      
+    ports:
+      - "1234:1234"
+    networks:
+      - my_network
+    command: ["sh", "-c", "/app/wait-for-it.sh phishing-scan-platform-db 3306 python app.py"]
+
+
+
+    
+networks:
+  my_network: {}  #Create a network for the communication between the services
+
+volumes:
+  mysql_data:  

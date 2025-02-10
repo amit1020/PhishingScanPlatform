@@ -1,7 +1,29 @@
-import pyotp,time,qrcode,PIL
+import configparser, pyotp,time,qrcode,PIL
+from pathlib import Path
 
 
-
+#TODO improve the secuirity
+def read_ini_file(action,api_name) -> configparser.SectionProxy:
+    if action == "api" and api_name != None: #Check if the action is to get the api key
+        config = configparser.ConfigParser()
+        
+        config.read(Path(__file__).parent.parent / "config.ini" ) #get the path of the config file
+        
+        if "api" in api_name and api_name in config.sections(): #Check if the api name is in the config file
+            return config['APIs'] #return the api key
+        else:
+            return None
+        
+    elif action == "Database_Connection" and api_name == None:
+        config = configparser.ConfigParser()
+        config.read(Path(__file__).parent.parent / "config.ini" )#found the path of the config file
+        return config['mysql_database_for_connection']
+        
+        
+    else:
+        return None
+    
+        
 # Generate a 2FA secret
 def generate_2fa_secret():
     totp = pyotp.TOTP(pyotp.random_base32())
@@ -28,8 +50,10 @@ def Create_QR(key:str,name:str) -> bool:
     
 #Vertify the OTP
 def verify_otp(secret_key, otp):
-    totp = pyotp.TOTP(secret_key) #Create TOTP object
-    return totp.verify(otp) 
+    print(otp)
+    
+    return pyotp.TOTP(secret_key).verify(otp,valid_window=0) #! This is the secret key that be stored in the database
+
 
 
 
@@ -81,3 +105,5 @@ if __name__ == "__main__":
         app.run(debug=True)
         
 """
+
+

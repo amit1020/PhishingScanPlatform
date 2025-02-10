@@ -1,4 +1,8 @@
-sections_array = ["loginBx", "registration", "authentication"];
+sections_array = ["loginBx", "registration", "authentication","2FA_Verification_section"];
+
+//For 2FA vertification
+let USERNAME = undefined;
+
 
 function Move_between_sections(sec){
     sections_array.forEach(function(item){
@@ -15,68 +19,92 @@ function Move_between_sections(sec){
 
 
 
-    //let data = [];
-    //data.push(document.getElementById("registration_username").value);
-    //data.push(document.getElementById("registration_password").value);
-    //data.push(document.getElementById("registration_email").value);
-    //console.log(data);
-
-    //formData.set("username", document.getElementById("registration_username").value);
-    //formData.set("password", document.getElementById("registration_password").value);
-    //formData.set("email", document.getElementById("registration_email").value);
-    //console.log(formData);
-    
-
 
     //https://www.freecodecamp.org/news/how-to-send-http-requests-using-javascript/
+    async function Send_Data_(data, url) {
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                body: data,
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8",  //Ensures JSON encoding
+                },
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Network error: ${response.status} - ${response.statusText}`);
+            }
+    
+            // Ensure the response is JSON
+            const responseData = await response.json().catch(() => null);
+            if (!responseData) throw new Error("Invalid JSON response from server");
+    
+            return responseData;
+    
+        } catch (error) {
+            console.error("Fetch error:", error.message);
+            return null;  // Always return null instead of crashing
+        }
+    }
+    
 
 
+    async function registration_function() {
+        //The meaning of this line is to get the current URL of the page and add the path to the API
+        let url = `${window.location.origin}/api/add_user/`;
+    
+        //Makes the USERNAME available globally
+        USERNAME = document.getElementById("registration_username").value;
 
 
-async function registration_function(){
-    //const formData = new URLSearchParams();
+        let message_body = JSON.stringify({
+            name: document.getElementById("registration_username").value,
+            password: document.getElementById("registration_password").value,
+            email: document.getElementById("registration_email").value,
+            phone: document.getElementById("registration_phone_number").value
+        });
 
-
-    //formData.set("username", document.getElementById("registration_username").value);
-    //formData.set("password", document.getElementById("registration_password").value);
-    //formData.set("email", document.getElementById("registration_email").value);
-    username = document.getElementById("registration_username").value;
-    password = document.getElementById("registration_password").value;
-    email = document.getElementById("registration_email").value;
-
-    console.log(username);
-    console.log(password);
-    //"http://127.0.0.1:1234/api/add_user/",
-   await fetch("http://127.0.0.1:1234/api/add_user/", {
-        method: "POST",
-        body: JSON.stringify({
-            username: username, 
-            password: password,
-            email: email
-        }),
-        headers: {
-            "Content-Type": "application/json",
-            //"Authorization": "your-token-here",
-        },
-
-    }).then(response => {
-          // If the response is not 2xx, throw an error
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
+        console.log(message_body);
+    
+        const response = await Send_Data_(message_body, url);
+    
+        if (response && response["2FA_key"]) {  
+            Move_between_sections("2FA_Verification_section");
+            document.getElementById("p_key").innerHTML = "Your key is: " + response["2FA_key"];
+        } else {
+            console.error("Failed to retrieve 2FA key.");
         }
     
-        // If the response is 200 OK, return the response in JSON format.
-        return response.json();
+        Clear_registration();  
+    }
+    
+    
+    async function verify_otp() {
+        //The meaning of this line is to get the current URL of the page and add the path to the API
+        let url = `${window.location.origin}/api/Vertification/2FA`;
 
-    })//! Close the fetch function
-    .then((data) => console.log(data)) // You can continue to do something to the response.
-    .catch((error) => console.error("Fetch error:", error)); // In case of an error, it will be captured and logged.
-};
+        
+        let message_body = JSON.stringify({
+            username: USERNAME,
+            otp: document.getElementById("OTP_code").value
+        });
+    
+        const response = await Send_Data_(message_body, url);
+    
+        if (response && response.status === "Success") {  
+            console.log("✅ 2FA verification successful");
+        } else {
+            console.error("❌ 2FA verification failed.");
+        }
+    }
+    
 
 
-
-
-function submitcode(){
-    console.log("submit code");
-};
+//clear the registration form
+function Clear_registration(){
+    document.getElementById("registration_username").value = "";
+    document.getElementById("registration_password").value = "";
+    document.getElementById("registration_email").value = "";
+    document.getElementById("registration_phone_number").value = "";
+}
 

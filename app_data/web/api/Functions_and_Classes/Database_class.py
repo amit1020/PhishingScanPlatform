@@ -1,9 +1,8 @@
-import sys,os,configparser,mysql.connector
+import sys,os,configparser,mysql.connector,time
 from mysql.connector import Error
 from datetime import datetime
 from pathlib import Path
-from General_Functions import read_ini_file
-
+from dotenv import load_dotenv
 
 
 HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","TRACE"]
@@ -15,30 +14,50 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 
             
-class Database_Connection_Class():
-    def __init__(self,user_type):
-        #self.database_code_path = Path(__file__).parent.parent / "DatabaseCode.sql"
-        #self.database_code_path = "./Users_DB.sql"#!When I run the file directly
-        self.database_code_path = "C:/Users/amitl/Documents/PhishingScanPlatform/app_data/Functions_and_Classes/Users_DB.sql" #!When I import the file to another file
-        conenction_data = read_ini_file("Database_Connection",None)
-   
-        try: #set the setting of the connection frin the ini file
-            self.connection = mysql.connector.connect(
-                host=conenction_data['MYSQL_HOST'],
-                user='root',
-                password='dsmf9832bd238u0dj',
-                port=conenction_data['MYSQL_PORT'],
-                database=conenction_data['MYSQL_DATABASE'],
-                charset='utf8mb4',
-            )
+class Database_Connection_Class:
+    def __init__(self):
         
-            if self.connection.is_connected():
-                self.mycursor = self.connection.cursor()
-                self.Build_database()
-        except Error as e:
-            print(e)
-            self.mycursor = None
-            return None
+        self.database_code_path = Path(__file__).parent / "Users_DB.sql"#local path
+        # Load .env file correctly
+        env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.env_user_db"))
+        load_dotenv(env_path)
+        
+
+
+        self.host = os.getenv("MYSQL_HOST", "localhost")
+        self.user = os.getenv("MYSQL_USER", "amit1020_admin_db")
+        self.password = os.getenv("MYSQL_PASSWORD", "78b8t23b8te8b3x298b")
+        self.port = int(os.getenv("MYSQL_PORT", "3306"))
+        self.database = os.getenv("MYSQL_DATABASE", "phishing-scan-platform-db")
+        self.connection = None
+
+        self.connect_with_retry()
+
+
+    #Try to connects the dayabase with multiple retries
+    def connect_with_retry(self, retries=10, delay=5):
+        for attempt in range(retries):
+            try:
+                #print(f" Attempting MySQL connection (Try {attempt + 1}/{retries})...")
+                #creates the connection var 
+                self.connection = mysql.connector.connect(
+                    host=self.host,
+                    user=self.user,
+                    password=self.password,
+                    database=self.database,
+                    port=self.port,
+                    charset="utf8mb4"
+                )
+                
+                if self.connection.is_connected():
+                    #?If the connection is success, create the cursor and build the database
+                    self.mycursor = self.connection.cursor()
+                    self.Build_database()
+                return
+            except mysql.connector.Error as err:
+                time.sleep(delay)
+        #If the connection is unable to connect after multiple retries, raise an exception 
+        raise Exception("MySQL is not available after multiple retries.")
     
     #*-------------------------------Get_Links----------------------------------------------------------------------------
     def Get_Links(self,api_method_type:str) -> dict: #Get the links from the database for Send_requests_api function
@@ -81,6 +100,62 @@ class Database_Connection_Class():
     
     
     
+    def Get_OTP(self,Name:str) -> bool:
+        if Name is not None:
+            try:
+                self.mycursor.execute(f"SELECT 2FA_key FROM Users_Table WHERE name='{Name}'")# get from the database all names of clients
+                results = self.mycursor.fetchall()
+                if len(results) == 0:
+                    return False
+                return results[0][0]
+            
+            except Exception as e:
+                print(e)
+                return False
+        return False
+    
+
+    
+    def Get_user_data(self,table_name:str,columns:str,condition:str=None,value:str=None) -> list[dict]:
+        if self.mycursor is not None:
+            if condition is not None and value is not None:
+                try:
+                    self.mycursor.execute(f"SELECT {columns} FROM {table_name} WHERE {condition}='{value}'")# get from the database all names of clients
+                    results = self.mycursor.fetchall()
+                    rows = []
+                    for row in results:
+                        rows.append(row)
+                    
+                    return rows
+                except Exception as e:
+                    print(e)
+                    return None
+        return None
+    
+    
+    
+    #*-------------------------------Create user----------------------------------------------------------------------------
+    def Create_Client(self,Data:dict,twoFA_key_var:str) -> bool:
+        if Data is not None:
+            try:
+                sql = "INSERT INTO Users_Table (name, password, email, 2FA_key, phone_number) VALUES (%s, %s, %s, %s, %s)"
+                vals = (Data['name'],Data['password'],Data['email'], twoFA_key_var, Data['phone'])
+                            
+                self.mycursor.execute(sql,vals)
+                self.connection.commit()
+                                
+                #return f"Success to add new client - {Data['name']}"
+                
+                return True
+
+            except Exception as error:
+                print(f"{error}")
+                #return f"Error to add new client - {Data['name']} code problem:\n[!] {error}"
+        
+                return False
+
+
+    
     
     
     #*-------------------------------Add_Links----------------------------------------------------------------------------
@@ -112,16 +187,17 @@ class Database_Connection_Class():
      
     #*if the database isnt exist, the pythob will  Build the database from the sql file 
     def Build_database(self):
-        with open(self.database_code_path, 'r',encoding='utf-8') as file: #read the sql file
+        #print("Running database setup...")
+        with open(self.database_code_path, 'r', encoding='utf-8') as file:
             sql_commands = file.read()
+
         for command in sql_commands.split(';'):
             if command.strip():
                 try:
-                    self.mycursor.execute(command) #execute the command 
+                    self.mycursor.execute(command)
                     self.connection.commit()
-                    print(f"Executed: {command}")
                 except mysql.connector.Error as err:
-                    print(f"Error: {err}")
+                    #print(f"Error executing SQL: {err}")
                     self.connection.rollback()
     #*-----------------------------------------------------------------------------------------------------------                
                     
@@ -143,38 +219,6 @@ class Database_Connection_Class():
         
     
         
-if __name__ == "__main__":
-    from General_Functions import read_ini_file #When I run the file directly
-    
-    t = Database_Connection_Class("a")
-    with Database_Connection_Class("a") as testing: #in order to close the connection after using the class
-        '''
-        result_bool,result=testing.Add_Links(
-                            {"purpose":"threat_catagories",
-                            "website_Name":"virustotal",
-                            "link":"https://www.virustotal.com/api/v3/popular_threat_categories",
-                            "request_type":"GET",
-                            "description":"Retrieve a list of popular threat categories",
-                            "headers":"accept:application/json"
-                            })
-        if result_bool:
-            print("work")
-            print(result)
-        else:
-            print(result)
-            print("didn't work")
-        
-        '''
-        
-        print(testing.Get_Links("threat_catagories"))
-        
-        
-else:
-    pass
-    #from app_data.Functions_and_Classes.General_Functions import read_ini_file #When I import the file to another file
-                    
-
-
 
         
       
