@@ -2,6 +2,12 @@ import requests,threading
 
 
 
+
+
+from web.api.Functions_and_Classes.General_Functions import *
+from web.api.Functions_and_Classes.Database_class import Database_Connection_Class
+
+
 #TODO https://docs.apivoid.com/  this too  and finish the class
 
 
@@ -124,14 +130,13 @@ class API_Helper:
        
 
 
+"""
 
-
-if name == "main":
+if __name__ == "__main__":
     from General_Functions import read_ini_file #When I run the file directly
     from Database_Class import Database_Connection_Class #When I run the file directly
     pass
 else:
     from app_data.Functions_and_Classes.General_Functions import read_ini_file #When I import the file to another file
     from app_data.Functions_and_Classes.Database_Class import Database_Connection_Class #When I import the file to another file
-
-
+"""

@@ -33,78 +33,82 @@ function Move_between_sections(sec){
 
 
     //https://www.freecodecamp.org/news/how-to-send-http-requests-using-javascript/
-
-
-
     async function Send_Data_(data, url) {
+        console.log(`🔹 Sending request to: ${url}`);
+        console.log(`🔹 Request body:`, data);
         try {
             const response = await fetch(url, {
                 method: "POST",
                 body: data,
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json; charset=UTF-8",  //Ensures JSON encoding
                 },
             });
     
-            // If the response is not OK (not in 200-299 range), throw an error
             if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.statusText}`);
+                throw new Error(`Network error: ${response.status} - ${response.statusText}`);
             }
     
-            // Convert response to JSON
-            const twoFA_key = await response.json();
-            return twoFA_key;
+            // Ensure the response is JSON
+            const responseData = await response.json().catch(() => null);
+            if (!responseData) throw new Error("Invalid JSON response from server");
+    
+            return responseData;
     
         } catch (error) {
-            console.error("Fetch error:", error);
-            return null; // Return null in case of failure
+            console.error("Fetch error:", error.message);
+            return null;  // Always return null instead of crashing
         }
-    };//!Close the function
+    }
+    
 
 
-async function registration_function(){
-    url = "http://127.0.0.1:1234/api/add_user/";
+    async function registration_function() {
+        let url = `${window.location.origin}/api/add_user/`;
+    
+        //Makes the USERNAME available globally
+        USERNAME = document.getElementById("registration_username").value;
 
-    USERNAME = document.getElementById("registration_username").value;
-    message_body = JSON.stringify([{
-            name: document.getElementById("registration_username").value, 
+
+        let message_body = JSON.stringify({
+            name: document.getElementById("registration_username").value,
             password: document.getElementById("registration_password").value,
             email: document.getElementById("registration_email").value,
             phone: document.getElementById("registration_phone_number").value
-        }]);
+        });
 
+        console.log(message_body);
     
-        const twoFA_key = await Send_Data_(message_body, url);
-
-        if (twoFA_key) { // Ensure key exists before using it
+        const response = await Send_Data_(message_body, url);
+    
+        if (response && response["2FA_key"]) {  
             Move_between_sections("2FA_Verification_section");
-            document.getElementById("p_key").innerHTML = "Your key is: " + twoFA_key;
+            document.getElementById("p_key").innerHTML = "Your key is: " + response["2FA_key"];
         } else {
             console.error("Failed to retrieve 2FA key.");
         }
     
-        Clear_registration(); // Assuming this function clears input fields  
-    };//!Close the function
+        Clear_registration();  
+    }
+    
+    
+    async function verify_otp() {
+        let url = `${window.location.origin}/api/Vertification/2FA`;
 
-
-
-async function verify_otp(){
-        url = "http://127.0.0.1:1234/api/Vertification/2FA"
-        message_body = JSON.stringify([{
+    
+        let message_body = JSON.stringify({
             username: USERNAME,
             otp: document.getElementById("OTP_code").value
-        }]);
-
-        const result = await Send_Data_(message_body, url);
+        });
     
-        if (result == "Success") { // Ensure key exists before using it
-            console.log("2FA verification successful");
+        const response = await Send_Data_(message_body, url);
+    
+        if (response && response.status === "Success") {  
+            console.log("✅ 2FA verification successful");
         } else {
-            console.error("Failed to retrieve 2FA key.");
+            console.error("❌ 2FA verification failed.");
         }
-
-
-};//Close the function
+    }
     
 
 
