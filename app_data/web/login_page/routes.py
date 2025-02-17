@@ -16,10 +16,16 @@ login_bp = Blueprint(
 
 
 @login_bp.route('/', methods=['GET'])
-def user_hello():
+def PageShowUp():
     return render_template('/login.html') 
 
 
 
 
 
+
+
+@login_bp.route('/userpage/', methods=['GET'])
+def product_home():
+    return render_template('/user.html') 
+    

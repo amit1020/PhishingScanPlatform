@@ -20,7 +20,10 @@ except ImportError as e:
 
 
 
-@API_bp.route('/')
+
+
+
+@API_bp.route('/test', methods=['GET'])
 def product_home():
     return "hello world"
     
