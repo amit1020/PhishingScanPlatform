@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `Links_Table` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+
 -- Phishing_Database.Users_Table definition
 CREATE TABLE IF NOT EXISTS `Users_Table` (
   `userID` int NOT NULL AUTO_INCREMENT,
