@@ -25,7 +25,7 @@ def PageShowUp():
 
 
 
-@login_bp.route('/test', methods=['GET'])
+@login_bp.route('/userpage/', methods=['GET'])
 def product_home():
     return render_template('/user.html') 
     
