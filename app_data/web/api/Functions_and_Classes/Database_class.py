@@ -31,7 +31,7 @@ class Database_Connection_Class:
         self.database = os.getenv("MYSQL_DATABASE", "phishing-scan-platform-db")
         self.connection = None
 
-        self.connect_with_retry()
+        #self.connect_with_retry()
 
 
     #Try to connects the dayabase with multiple retries

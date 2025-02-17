@@ -20,7 +20,7 @@ services:
 
   web:
     container_name: python_web_service_app
-    build: .
+    build: . 
     depends_on:
       my_sql:
         condition: service_healthy #Wait for the my_sql service to be healthy 
