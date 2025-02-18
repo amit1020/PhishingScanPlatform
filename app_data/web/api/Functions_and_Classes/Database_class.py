@@ -27,11 +27,11 @@ class Database_Connection_Class:
         self.host = os.getenv("MYSQL_HOST", "-----")
         self.user = os.getenv("MYSQL_USER", "------")
         self.password = os.getenv("MYSQL_PASSWORD", "------")
-        self.port = int(os.getenv("MYSQL_PORT", "-----"))
+        self.port = int(os.getenv("MYSQL_PORT", "3306"))
         self.database = os.getenv("MYSQL_DATABASE", "------")
         self.connection = None
 
-        #self.connect_with_retry()
+        self.connect_with_retry()
 
 
     #Try to connects the dayabase with multiple retries

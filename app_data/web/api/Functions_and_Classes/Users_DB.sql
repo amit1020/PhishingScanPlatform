@@ -55,4 +55,11 @@ CREATE TABLE IF NOT EXISTS `Users_Technical_Data_Table` (
 
 
 
-
+-- Create the API table
+CREATE TABLE IF NOT EXISTS `API_Table` (
+  `api_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `api_name` VARCHAR(50) NOT NULL,
+  `value` VARCHAR(255) NOT NULL,
+  `method` ENUM('GET','POST','PUT','DELETE') NOT NULL,
+  `description` TEXT,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
