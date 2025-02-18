@@ -62,3 +62,11 @@ CREATE TABLE IF NOT EXISTS 'API_Table' (
   'description' TEXT NULL,
 	CONSTRAINT API_Table_PK PRIMARY KEY ('api_id')
 )ENGINE=InnoDB,DEFAULT CHARSET=utf8mb4,COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+
+REVOKE ALL PRIVILEGES ON `Phishing_Database`.`API_Table` FROM 'amit1020_admin_db'@'localhost';
+GRANT SELECT ON `Phishing_Database`.`API_Table` TO 'amit1020_admin_db'@'localhost';
+FLUSH PRIVILEGES;
