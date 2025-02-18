@@ -1,7 +1,7 @@
 import configparser, pyotp,time,qrcode,PIL
 from pathlib import Path
 
-
+"""
 #TODO improve the secuirity
 def read_ini_file(action,api_name) -> configparser.SectionProxy:
     if action == "api" and api_name != None: #Check if the action is to get the api key
@@ -23,14 +23,45 @@ def read_ini_file(action,api_name) -> configparser.SectionProxy:
     else:
         return None
     
-        
+"""    
+
+
+
+
+import bcrypt
+
+
+
+def HashPassword(pass_:str):
+    _ = pass_.encode('utf-8')  # Convert password to bytes
+    hashed = bcrypt.hashpw( _ , bcrypt.gensalt())
+    return hashed
+
+
+
+def VertifyPassword(pass_:str,hashed_pass:str):
+    _ = pass_.encode('utf-8')  # Convert password to bytes
+    return bcrypt.checkpw(_, hashed_pass)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Generate a 2FA secret
 def generate_2fa_secret():
     totp = pyotp.TOTP(pyotp.random_base32())
     return totp.secret #! This is the secret key that be stored in the database
-
-
-
 
 
 def Create_QR(key:str,name:str) -> bool:
@@ -51,10 +82,7 @@ def Create_QR(key:str,name:str) -> bool:
 #Vertify the OTP
 def verify_otp(secret_key, otp):
     print(otp)
-    
     return pyotp.TOTP(secret_key).verify(otp,valid_window=0) #! This is the secret key that be stored in the database
-
-
 
 
 

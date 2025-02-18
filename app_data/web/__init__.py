@@ -28,7 +28,7 @@ def Create_App():
     def not_found_error(error):
         return "This page was not found", 404
     
-    #register_sass_folders(app)
+    
     
     return app
 
