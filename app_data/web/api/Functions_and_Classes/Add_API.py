@@ -2,13 +2,35 @@ import sys,os,mysql.connector,time,configparser
 from mysql.connector import Error
 from dotenv import load_dotenv
 from functools import wraps
+from pathlib import Path
 
+#Encryption and Decryption modules
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
 
+from binascii import hexlify
 
 sys.stdout.reconfigure(encoding='utf-8')
 
 
 API_LIST = ['virustotal','APIVoid']
+
+
+def encrypt_message(message:str):
+    public_key_path = Path(__file__).parent.parent.parent.parent / "Keys" / "Public.pem"
+    with open(public_key_path, "rb") as file: #Open the public key file
+        public_key = RSA.import_key(file.read())
+        message = message.encode("utf-8") #Convert the message to bytes
+        cipher_rsa = PKCS1_OAEP.new(public_key) #Create a new PKCS1_OAEP object with the public key
+        
+        encrypted_data = cipher_rsa.encrypt(message) #Encrypt the message
+        
+        print(f"Encrypted: {hexlify(encrypted_data)}") #Print the encrypted message
+        
+    return encrypted_data
+    
+
+
 
 
 def connect_with_retry(func):
@@ -61,7 +83,8 @@ def add_api_values(connection_):
         try:
             mycursor = connection_.cursor()
             sql = "INSERT INTO API_Table (api_website_name, value) VALUES (%s, %s)"
-            val = (_,os.getenv(_))
+            en_data = encrypt_message(os.getenv(_))#Encrypt the API key
+            val = (_,en_data)
             mycursor.execute(sql, val)
             connection_.commit()
         except Error as e:
@@ -71,7 +94,7 @@ def add_api_values(connection_):
     
 
 
-add_api_values()        
+#add_api_values()        
 
     
 

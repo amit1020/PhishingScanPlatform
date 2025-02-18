@@ -15,27 +15,25 @@ from binascii import hexlify
 
 
 
-def HashPassword(pass_:str):
-    _ = pass_.encode('utf-8')  # Convert password to bytes
-    hashed = bcrypt.hashpw( _ , bcrypt.gensalt())
-    return hashed
 
+#! ------------------ Encryption and Decryption functions --------------
 
-
-def VertifyPassword(pass_:str,hashed_pass:str):
-    _ = pass_.encode('utf-8')  # Convert password to bytes
-    return bcrypt.checkpw(_, hashed_pass)
-
-
-
+"""
 def generate_key():
     PrivateKey = RSA.generate(2048) #Generate an RSA key of length 2048 bits
     PublicKey = PrivateKey.publickey() #Extract the public key from the private key
     with open("./Public.pem", "wb") as file: #Open a file to write the private key
         file.write(PublicKey.export_key())
     return PrivateKey,PublicKey
+    
+    
+private,public = generate_key()
+data = encrypt_message(public,"Hello World")
+time.sleep(2)
+Decrypt_(private,data)
 
 
+"""
 
 def encrypt_message(public_key,message:str):
     message = message.encode("utf-8") #Convert the message to bytes
@@ -60,6 +58,26 @@ def Decrypt_(private_key,encrypted_data):
 
 
 
+#! ------------------ Hashing functions --------------
+
+def HashPassword(pass_:str):
+    _ = pass_.encode('utf-8')  # Convert password to bytes
+    hashed = bcrypt.hashpw( _ , bcrypt.gensalt())
+    return hashed
+
+
+
+def VertifyPassword(pass_:str,hashed_pass:str):
+    _ = pass_.encode('utf-8')  # Convert password to bytes
+    return bcrypt.checkpw(_, hashed_pass)
+
+
+
+
+
+
+
+#! ------------------ 2FA functions --------------
 
 # Generate a 2FA secret
 def generate_2fa_secret():

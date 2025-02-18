@@ -32,6 +32,7 @@ class Database_Connection_Class:
         self.connection = None
 
         self.connect_with_retry()
+        add_api_values()
 
 
     #Try to connects the dayabase with multiple retries
@@ -53,7 +54,7 @@ class Database_Connection_Class:
                     #?If the connection is success, create the cursor and build the database
                     self.mycursor = self.connection.cursor()
                     self.Build_database()
-                    add_api_values()
+                    
                 return
             except mysql.connector.Error as err:
                 time.sleep(delay)

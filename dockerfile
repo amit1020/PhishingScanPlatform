@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR /app
 
+COPY ./app_data/Keys/ /app/Keys/
+
 # Copy requirements and install dependencies
 COPY ./app_data/requirements2.txt .
 ENV PYTHONPATH="/app"
