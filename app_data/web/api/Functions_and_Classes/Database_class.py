@@ -3,7 +3,7 @@ from mysql.connector import Error
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
-
+from web.api.Functions_and_Classes.Add_API import add_api_values
 
 HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","TRACE"]
 
@@ -32,6 +32,7 @@ class Database_Connection_Class:
         self.connection = None
 
         self.connect_with_retry()
+        add_api_values()
 
 
     #Try to connects the dayabase with multiple retries
@@ -53,6 +54,7 @@ class Database_Connection_Class:
                     #?If the connection is success, create the cursor and build the database
                     self.mycursor = self.connection.cursor()
                     self.Build_database()
+                    
                 return
             except mysql.connector.Error as err:
                 time.sleep(delay)
