@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from functools import wraps
 
 
+
 sys.stdout.reconfigure(encoding='utf-8')
 
 
