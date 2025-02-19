@@ -4,16 +4,27 @@ CREATE DATABASE IF NOT EXISTS `Phishing_Database`;
 -- Switch to the newly created or existing database
 USE `Phishing_Database`;
 
--- Phishing_Database.Links_Table definition
-CREATE TABLE IF NOT EXISTS `Links_Table` (
-  `Serial_Number` int NOT NULL AUTO_INCREMENT,
-  `purpose` varchar(20) NOT NULL,
-  `website_name` varchar(50) NOT NULL,
-  `link` varchar(100) NOT NULL,
-  `request_type` varchar(10) NOT NULL,
-  `description` text,
-  `headers` varchar(200) NOT NULL,
-  PRIMARY KEY (`Serial_Number`)
+
+
+CREATE TABLE IF NOT EXISTS `API_Table` (
+    `api_id` INT auto_increment NOT NULL,
+    `api_website_name` varchar(100) NOT NULL,
+    `value` VARBINARY(512) NOT NULL,
+    `description` TEXT NULL,
+    CONSTRAINT `API_Table_PK` PRIMARY KEY (`api_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+-- Phishing_Database.APIMethods_table definition
+CREATE TABLE IF NOT EXISTS `APIMethods_table` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `url` varchar(100) NOT NULL,
+  `api_name` varchar(25) NOT NULL,
+  `http_method` varchar(10) NOT NULL,
+  `headers` json NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `Links_Table_UNIQUE` (`url`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -55,18 +66,10 @@ CREATE TABLE IF NOT EXISTS `Users_Technical_Data_Table` (
 
 
 
-CREATE TABLE IF NOT EXISTS 'API_Table' (
-	'api_id' INT auto_increment NOT NULL,
-	'api_website_name' varchar(100) NOT NULL,
-	'value' VARBINARY(512) NOT NULL,
-  'description' TEXT NULL,
-	CONSTRAINT API_Table_PK PRIMARY KEY ('api_id')
-)ENGINE=InnoDB,DEFAULT CHARSET=utf8mb4,COLLATE=utf8mb4_0900_ai_ci;
 
 
 
 
 
-REVOKE ALL PRIVILEGES ON `Phishing_Database`.`API_Table` FROM 'amit1020_admin_db'@'localhost';
-GRANT SELECT ON `Phishing_Database`.`API_Table` TO 'amit1020_admin_db'@'localhost';
-FLUSH PRIVILEGES;
+-- REVOKE INSERT, UPDATE, DELETE, EXECUTE, CREATE, DROP, ALTER ON `Phishing_Database`.`API_Table` FROM `amit1020_admin_db`@`localhost`;
+-- GRANT SELECT ON `Phishing_Database`.`API_Table` TO `amit1020_admin_db`@`localhost`;

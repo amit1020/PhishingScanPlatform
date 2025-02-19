@@ -1,5 +1,5 @@
 from flask import Flask
-from .assets import register_sass_folders
+
 
 
 

@@ -118,20 +118,34 @@ class Database_Connection_Class:
     
 
     
-    def Get_user_data(self,table_name:str,columns:str,condition:str=None,value:str=None) -> list[dict]:
+    
+    def check_or_get_data(self,table_name:str,columns:str,condition:str=None,value:str=None,message_type:str=None) -> list[dict]:
         if self.mycursor is not None:
-            if condition is not None and value is not None:
-                try:
-                    self.mycursor.execute(f"SELECT {columns} FROM {table_name} WHERE {condition}='{value}'")# get from the database all names of clients
-                    results = self.mycursor.fetchall()
-                    rows = []
-                    for row in results:
-                        rows.append(row)
+        
+            if condition is  None or value is  None or message_type is  None:
+                return None
+                
+                
+            match message_type:
+                case "condition": #E.g check if the user is exist
+                        self.mycursor.execute(f"SELECT {columns} FROM {table_name} WHERE {condition}='{value}'")# get from the database all names of clients
+                        
+                case "Get-data": #E.g get the user data
+                        self.mycursor.execute(f"SELECT {columns} FROM {table_name}")# get from the database all names of clients
+                        
+                case _:
+                    #! Invlid message_type
+                    return None             
+            try:
+                results = self.mycursor.fetchall()
+                rows = []
+                for row in results:
+                    rows.append(row)
                     
-                    return rows
-                except Exception as e:
-                    print(e)
-                    return None
+                return rows
+            except Exception as e:
+                print(e)
+                return None
         return None
     
     
@@ -187,7 +201,7 @@ class Database_Connection_Class:
      
      
      
-    #*if the database isnt exist, the pythob will  Build the database from the sql file 
+    #*if the database isnt exist, the python will  Build the database from the sql file 
     def Build_database(self):
         #print("Running database setup...")
         with open(self.database_code_path, 'r', encoding='utf-8') as file:

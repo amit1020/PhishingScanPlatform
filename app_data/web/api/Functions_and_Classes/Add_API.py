@@ -13,7 +13,7 @@ from binascii import hexlify
 sys.stdout.reconfigure(encoding='utf-8')
 
 
-API_LIST = ['virustotal','APIVoid']
+API_LIST = ['virustotal','urlscan']
 
 
 def encrypt_message(message:str):
@@ -25,7 +25,7 @@ def encrypt_message(message:str):
         
         encrypted_data = cipher_rsa.encrypt(message) #Encrypt the message
         
-        print(f"Encrypted: {hexlify(encrypted_data)}") #Print the encrypted message
+        #print(f"Encrypted: {hexlify(encrypted_data)}") #Print the encrypted message
         
     return encrypted_data
     
@@ -90,6 +90,7 @@ def add_api_values(connection_):
         except Error as e:
             print(f"Error: '{e}'")
             pass
+    
     
     
 

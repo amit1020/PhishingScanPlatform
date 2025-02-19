@@ -1,0 +1,34 @@
+api_virustotal:
+	-URL SCAN:
+        -purpose:
+            scanning url 
+        -website_name:
+            virustotal
+        -link:
+            "https://www.virustotal.com/api/v3/urls"
+        -http_method:
+            POST 
+        -headers: 
+            'accept': 'application/json',
+            'x-apikey': '_-_-_',
+            'content-type': 'application/x-www-form-urlencoded'
+
+    
+
+
+apivoid:
+    -URL reputation
+        -purpose
+            scanning url
+        -website_name
+            apivoid
+        -link:
+            "https://api.apivoid.com/v2/url-reputation"
+        -http_method:
+            POST
+        
+        -headers: 
+            'Content-Type: application/json'
+
+
+		

@@ -1,11 +1,16 @@
-import requests,threading
-
-
-
-
-
+import requests
 from web.api.Functions_and_Classes.General_Functions import *
 from web.api.Functions_and_Classes.Database_class import Database_Connection_Class
+from functools import wraps
+
+#Encryption and Decryption modules
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+import time
+#This module converts binary data to Hexadecimal
+from binascii import hexlify
+import base64
+
 
 
 #TODO https://docs.apivoid.com/  this too  and finish the class
@@ -13,109 +18,151 @@ from web.api.Functions_and_Classes.Database_class import Database_Connection_Cla
 
 HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","TRACE"]
 
-def send_request(payload,url,headers,request_type,my_lock):
-    with my_lock:
-        try:
-            match request_type:
-                case "post":
-                    response = requests.post(url, headers=headers,data=payload)
-                    if response.status_code == 200:
-                        return response.json()
-                    else:
-                        return response.text
-                case "get":
-                    response = requests.get(url, headers=headers,params=payload)
-                    if response.status_code == 200:
-                        return response.json()
-                    else:
-                        return response.text
-                case "put":
-                    response = requests.put(url, headers=headers,data=payload)
-                    if response.status_code == 200:
-                        return response.json()
-                    else:
-                        return response.text
-                    
-                case _:
-                    pass
-        except Exception as e:
-            print(e)
-            return None
 
 
+
+def send_http_request(self,headers:dict,url:str,http_method:str,payload:dict) -> any:
+    try:
+        match http_method.lower():
+            case "post":
+                response = requests.post(url, headers=headers,data=payload)
+                if response.status_code == 200:
+                    return response.json()
+                return response.text
+            case "get":
+                response = requests.get(url, headers=headers)
+                if response.status_code == 200:
+                    return response.json()
+                return response.text
+            case _:
+                return None
+    except Exception as e:
+        print(e)
+        
+    
+    
+    
 
 
 class API_Helper:
     def init(self):
-        self.lock = threading.Lock()
-        #? currently I don't have any idea what to put here
-        pass
-        
-       
-       
-       
-    #*Privat function to connect and get/set data from the database
-    def __ConnectionWithDatabase(self,database_action:str,api_action:str) -> list[dict]:
-        """_summary_
-
-        Args:
-            database_action (str): which action to do with the database, it can be(currently):
-                -get_links
-                -set
-            api_action (str): which action the user want to do with the APIs, it can be(currently):
-                -url_scan
-                -threat_catagories
-                -domain_scan
-        Returns:
-            _type_: _description_
-        """
         try:
-            with Database_Connection_Class() as db_object: #in order to close the connection after using the class 
-                match database_action:
-                    case "get_links":
-                        return db_object.Get_Links(api_method_type=api_action)
-
-                    case "set":
-                        
-                        #!Set Vertifiction 
-                        pass
-                        
-                    case _:
-                        return None
-                    
+            with Database_Connection_Class() as db_object: #in order to close the connection after using the class
+                #Get the API keys from the database
+                self.api_virustotal = db_object.check_or_get_data(table_name="API_Table",columns="value",condition="website_name",value="virustotal", message_type="condition")
+                self.api_APIVoid = db_object.check_or_get_data(table_name="API_Table",columns="value",condition="website_name",value="APIVoid", message_type="condition")
                 
-                
-                #!Write the code to connect to the database
-                
+            #Decrypt the API keys
+            self.api_virustotal = self.__Decrypt_(self.api_virustotal)
+            self.api_APIVoid = self.__Decrypt_(self.api_APIVoid)
         except Exception as e:
             print(e)
-            return None    
+            return None
+        
+        #print(self.api_virustotal)
+        #print(self.api_APIVoid)
 
-#TODO types for arguments like: api_action:str
-    def Send_requests_api(self,payload,api_function:str):
-        threads = []
+
+        
+        
+        
+    def __Decrypt_(self,API_KEY) -> str:
         try:
-            payload = "Get_from_GUI"
-            links = self.__ConnectionWithDatabase("get_links",api_function)#get the links from the database
+            private_key_path = Path(__file__).parent.parent.parent.parent / "Keys" / "Private.pem"
+            with open(private_key_path, "rb") as file: #Open the private key file
+                private_key = RSA.import_key(file.read())
+                cipher_rsa = PKCS1_OAEP.new(private_key) #Create a new PKCS1_OAEP object with the private key
+                decrypted_data = cipher_rsa.decrypt(API_KEY) #Decrypt the message
+                #print(f"Decrypted: {decrypted_data.decode('utf-8')}") #Print the decrypted message
+                
+            return decrypted_data.decode('utf-8')
+        except Exception as e:
+            print(e)
+            return None
+       
+    
+    
+
+    
+
+    
+    
+    def Scan(self,**kwds) -> any:
+        message = None
+        headers = kwds.get("headers",None)
+        APIType = kwds.get("api_type",None)
+        url = kwds.get("url",None)
+        http_method = kwds.get("http_method",None)
+        payload = kwds.get("payload",None)
+        
+        if headers is None or APIType is None or url is None or http_method is None or self.api_virustotal is None or self.api_APIVoid is None:
+            return None
+        
+        if http_method.upper() not in HTTP_METHODS: #Check if the http method is valid
+            return None
+        
+        if APIType.lower() != "virustotal" or APIType.lower() != "APIVoid" :
+            return None
             
-            if links is not None:#if the links are not None
-                for link in links: #run the links and send the requests
-                    if link["request_type"] in HTTP_METHODS:
-                        threads.append(threading.Thread(target=send_request,args=(payload,link["url"],link["headers"],link["request_type"],self.lock)))
-                    else:
-                        print("The HTTP method is not valid")
-                        return None
-                
-                
-                for thread in threads:
-                    thread.start()
-                
-                for thread in threads:
-                    thread.join()
+    
+        try:
+            pass 
                 
         except Exception as e:
             print(e)
             return None
+
+        
+    
+    
+    
+       
+       
+    def extract_response_data(self,response,api_type) -> dict:
+        if response is None or api_type is None:
+            return None
+        try:
+            data = response.json()  # Convert the response to dict
+        
+            if api_type.lower() == "virustotal":
+                # Navigate down to the attributes section:
+                attributes = data.get("data",{}).get("attributes",{})                
+                analysis_stats = attributes.get("last_analysis_stats",{})
+                total_votes = attributes.get("total_votes",{})
+                return {
+                    "malicious_count":analysis_stats.get("malicious",-1),
+                    "suspicious_count":analysis_stats.get("suspicious",-1),
+                    "harmless_count":analysis_stats.get("harmless",-1),
+                    "undetected_count":analysis_stats.get("undetected",-1),
+                    "timeout_count":analysis_stats.get("timeout",-1),
+                    "reputation":attributes.get("reputation",-1),   
+                    "total-votes-harmless":total_votes.get("harmless",-1),
+                    "total-votes-malicious":total_votes.get("malicious",-1),
+                    "categories":attributes.get("categories",{})    
+                           
+                }
+            elif api_type=="urlscan":
+                page_info = response.get("page", {})
+                url_status = response.get("verdicts", {}).get("overall", {})
+                return {
+                    "url:", page_info.get("url", "N/A"),
+                    "domain:", page_info.get("domain", "N/A"),
+                    "country:", page_info.get("country", "N/A"),
+                    "malicious", url_status.get("malicious", False),
+                    "score:", url_status.get("score", "N/A")
+                }
+                
+            else:
+                return None
+            
+            
+        except Exception as e:
+            print(e)
+            return None            
+                
+
+
+
                 
             
         
