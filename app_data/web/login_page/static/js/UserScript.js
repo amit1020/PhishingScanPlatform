@@ -30,16 +30,21 @@
 
 
     async function GetURL(saved_url){
-
-        let endpoint = `${window.location.origin}/api//`; //Api endpoint
         
-        let message_body = JSON.stringify({
-            url: saved_url
-        });
-        console.log(message_body);
+        let endpoint = `${window.location.origin}/api/ScanURL/`; //Api endpoint
+       
+        let message_body = JSON.stringify({ url: saved_url }); 
+        
+        const response = await Send_Data_(message_body, endpoint);
 
-    
-    
+        //!change response to the correct variable name
+        if (response && response["no-know-yet"]) {  
+
+            //! Answer deploy code here 
+            //document.getElementById("p_key").innerHTML = "Your key is: " + response["2FA_key"];
+        } else {
+            console.error("Failed to retrieve 2FA key.");
+        }
     }
     
     

@@ -9,7 +9,7 @@ from Crypto.Cipher import PKCS1_OAEP
 import time
 #This module converts binary data to Hexadecimal
 from binascii import hexlify
-import base64
+import base64,sys
 
 
 
@@ -51,7 +51,9 @@ def send_urlscan(api_key, url, visibility="public"):
         scan_result = response.json()
     except requests.exceptions.RequestException as e:
         print(f"Request error: {e}")
+        sys.stdout.flush()
         return None
+    
     
     # Extract scan UUID
     scan_uuid = scan_result.get("uuid")
@@ -68,6 +70,7 @@ def send_urlscan(api_key, url, visibility="public"):
     max_wait_time = 60  # Maximum wait time in seconds
     wait_interval = 5  # Polling interval
     elapsed_time = 0
+    sys.stdout.flush()
 
     while elapsed_time < max_wait_time:
         time.sleep(wait_interval)
@@ -78,63 +81,77 @@ def send_urlscan(api_key, url, visibility="public"):
             return result_response.json()  # Return JSON result
 
     print("Scan results not available within the time limit.")
+    sys.stdout.flush()
     return None
 
     
-    
-    
-    
-    
-        
-    
-
 
 class API_Helper:
-    def init(self):
+    def __init__(self,dbp):
         try:
-            with Database_Connection_Class() as db_object: #in order to close the connection after using the class
-                #Get the API keys from the database
-                self.api_virustotal = db_object.check_or_get_data(table_name="API_Table",columns="value",condition="website_name",value="virustotal", message_type="condition")
-                self.api_APIVoid = db_object.check_or_get_data(table_name="API_Table",columns="value",condition="website_name",value="APIVoid", message_type="condition")
-                
+            self.api_virustotal = dbp.check_or_get_data(table_name="API_Table",columns="value",condition="api_website_name",value="virustotal", message_type="condition")[0][0]
+            self.api_urlscan = dbp.check_or_get_data(table_name="API_Table",columns="value",condition="api_website_name",value="urlscan", message_type="condition")[0][0]
             #Decrypt the API keys
-            self.api_virustotal = self.__Decrypt_(self.api_virustotal)
-            self.api_APIVoid = self.__Decrypt_(self.api_APIVoid)
+            self.api_virustotal = self.__Decrypt__(self.api_virustotal)  
+            self.api_urlscan = self.__Decrypt__(self.api_urlscan)
+            sys.stdout.flush()
         except Exception as e:
+            self.api_urlscan = None
+            self.api_virustotal = None
             print(e)
+            sys.stdout.flush()
             return None
         
         #print(self.api_virustotal)
-        #print(self.api_APIVoid)
+        #print(self.api_urlscan)
 
 
         
         
-    def __Decrypt_(self,API_KEY) -> str:
+    def __Decrypt__(self, API_KEY: str) -> str:
         try:
-            private_key_path = Path(__file__).parent.parent.parent.parent / "Keys" / "Private.pem"
-            with open(private_key_path, "rb") as file: #Open the private key file
+            private_key_path = Path(__file__).parent.parent.parent.parent / "keys" / "Private.pem"
+
+            with open(private_key_path, "rb") as file:  # Open the private key file
                 private_key = RSA.import_key(file.read())
-                cipher_rsa = PKCS1_OAEP.new(private_key) #Create a new PKCS1_OAEP object with the private key
-                decrypted_data = cipher_rsa.decrypt(API_KEY) #Decrypt the message
-                #print(f"Decrypted: {decrypted_data.decode('utf-8')}") #Print the decrypted message
-                
-            return decrypted_data.decode('utf-8')
+
+            cipher_rsa = PKCS1_OAEP.new(private_key)  # Create a new PKCS1_OAEP object
+
+            # Ensure API_KEY is a string and clean it up
+            if isinstance(API_KEY, bytes):
+                API_KEY = API_KEY.decode("utf-8")
+
+            API_KEY = API_KEY.strip()  # Remove any extra whitespace
+
+            # Fix incorrect Base64 padding
+            missing_padding = len(API_KEY) % 4
+            if missing_padding:
+                API_KEY += "=" * (4 - missing_padding)
+
+            try:
+                encrypted_data = base64.b64decode(API_KEY, validate=True)
+            except base64.binascii.Error as e:
+                raise ValueError(f"Invalid Base64 encoding: {e}")
+
+            decrypted_data = cipher_rsa.decrypt(encrypted_data)  # Decrypt the message
+            return decrypted_data.decode("utf-8")  # Convert bytes to string
+
         except Exception as e:
-            print(e)
-            return None
-       
+            raise ValueError(f"Decryption failed: {e}")  # Raise error for better debugging
+
 
     
 
 
-    def __call__(self,target_url) -> any:
+    def ScanURL(self,target_url) -> dict:
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         if target_url is None:
             return None
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         scan_results = {}
         try:
             virustotal_response = send_virustotal(self.api_virustotal,target_url)
-            urlscan_response = send_urlscan(self.api_APIVoid,target_url)
+            urlscan_response = send_urlscan(self.api_urlscan,target_url)
             
             #Extract the data from the responses
             scan_results["virustotal"] = self.extract_response_data(response=virustotal_response,api_type="virustotal") 
@@ -144,6 +161,7 @@ class API_Helper:
                  
         except Exception as e:
             print(e)
+            sys.stdout.flush()
             return None
 
         
@@ -192,9 +210,9 @@ class API_Helper:
             
         except Exception as e:
             print(e)
+            sys.stdout.flush()
             return None            
                 
-
 
 
             

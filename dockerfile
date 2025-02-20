@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR /app
 
-COPY ./app_data/Keys/ /app/Keys/
+COPY ./app_data/keys /app/keys
 
 # Copy requirements and install dependencies
 COPY ./app_data/requirements2.txt .

@@ -32,7 +32,13 @@ class Database_Connection_Class:
         self.connection = None
 
         self.connect_with_retry()
-        add_api_values()
+        
+        _virustotal_exist = self.check_or_get_data(table_name="API_Table",columns="api_website_name",condition="api_website_name",value="virustotal",message_type="condition")
+        _urlscan_exist = self.check_or_get_data(table_name="API_Table",columns="api_website_name",value="urlscan",condition="api_website_name",message_type="condition")
+        sys.stdout.flush()
+        
+        if _virustotal_exist is None or _urlscan_exist is None:            
+            add_api_values()
 
 
     #Try to connects the dayabase with multiple retries
@@ -107,12 +113,10 @@ class Database_Connection_Class:
     
     def check_or_get_data(self,table_name:str,columns:str,condition:str=None,value:str=None,message_type:str=None) -> list[dict]:
         if self.mycursor is not None:
-        
             if condition is  None or value is  None or message_type is  None:
                 return None
-
             match message_type: #Check the message type
-                case "condition": #E.g check if the user is exist
+                case "condition":   #E.g check if the user is exist
                         self.mycursor.execute(f"SELECT {columns} FROM {table_name} WHERE {condition}='{value}'")# get from the database all names of clients
                         
                 case "Get-data": #E.g get the user data
@@ -123,11 +127,13 @@ class Database_Connection_Class:
                     return None             
             try:
                 results = self.mycursor.fetchall()
+                if results is None or len(results) == 0:
+                    return None
                 rows = []
                 for row in results:
                     rows.append(row)
-                    
                 return rows
+            
             except Exception as e:
                 print(e)
                 return None
