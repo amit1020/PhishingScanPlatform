@@ -34,56 +34,45 @@ def send_virustotal(api,url):
     return response
 
 
+
+
+
 def send_urlscan(api_key, url, visibility="public"):
-    endpoint = "https://urlscan.io/api/v1/scan/"
-    headers = {
-        "API-Key": api_key,
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "url": url,
-        "visibility": visibility  # 'public' or 'private'
-    }
-    
+    scan_endpoint = "https://urlscan.io/api/v1/scan/"
+    headers = {"API-Key": api_key, "Content-Type": "application/json"}
+    payload = {"url": url, "visibility": visibility}
+
     try:
-        response = requests.post(endpoint, json=payload, headers=headers)
-        response.raise_for_status()  # Raise error for non-2xx responses
+        response = requests.post(scan_endpoint, json=payload, headers=headers)
+        if response.status_code != 200:
+            print(f"Scan request failed! Status code: {response.status_code}, Response: {response.text}")
+            return None
+
         scan_result = response.json()
+        print(f"Scan Response: {scan_result}")  # Debugging
+
     except requests.exceptions.RequestException as e:
         print(f"Request error: {e}")
-        sys.stdout.flush()
-        return None
-    
-    
-    # Extract scan UUID
-    scan_uuid = scan_result.get("uuid")
-    if not scan_uuid:
-        print("Error starting scan:", scan_result)
         return None
 
+    if "uuid" not in scan_result:
+        print(f"Unexpected scan result format: {scan_result}")
+        return None
+
+    scan_uuid = scan_result["uuid"]
     print(f"Scan started! UUID: {scan_uuid}")
-    result_url = f"https://urlscan.io/result/{scan_uuid}/"
-    print(f"View results here: {result_url}")
 
-    # Wait for scan to complete with a max wait time
+    # Wait for scan to complete
+    time.sleep(20)
+
     result_endpoint = f"https://urlscan.io/api/v1/result/{scan_uuid}/"
-    max_wait_time = 60  # Maximum wait time in seconds
-    wait_interval = 5  # Polling interval
-    elapsed_time = 0
-    sys.stdout.flush()
+    result_response = requests.get(result_endpoint)
 
-    while elapsed_time < max_wait_time:
-        time.sleep(wait_interval)
-        elapsed_time += wait_interval
-        result_response = requests.get(result_endpoint)
+    if result_response.status_code != 200:
+        print(f"Failed to retrieve scan results! Status: {result_response.status_code}, Response: {result_response.text}")
+        return None
 
-        if result_response.status_code == 200:
-            return result_response.json()  # Return JSON result
-
-    print("Scan results not available within the time limit.")
-    sys.stdout.flush()
-    return None
-
+    return result_response
     
 
 class API_Helper:
@@ -92,18 +81,18 @@ class API_Helper:
             self.api_virustotal = dbp.check_or_get_data(table_name="API_Table",columns="value",condition="api_website_name",value="virustotal", message_type="condition")[0][0]
             self.api_urlscan = dbp.check_or_get_data(table_name="API_Table",columns="value",condition="api_website_name",value="urlscan", message_type="condition")[0][0]
             #Decrypt the API keys
+
             self.api_virustotal = self.__Decrypt__(self.api_virustotal)  
             self.api_urlscan = self.__Decrypt__(self.api_urlscan)
             sys.stdout.flush()
+            
         except Exception as e:
             self.api_urlscan = None
             self.api_virustotal = None
-            print(e)
             sys.stdout.flush()
             return None
         
-        #print(self.api_virustotal)
-        #print(self.api_urlscan)
+
 
 
         
@@ -144,10 +133,10 @@ class API_Helper:
 
 
     def ScanURL(self,target_url) -> dict:
-        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
         if target_url is None:
             return None
-        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
         scan_results = {}
         try:
             virustotal_response = send_virustotal(self.api_virustotal,target_url)
@@ -155,8 +144,12 @@ class API_Helper:
             
             #Extract the data from the responses
             scan_results["virustotal"] = self.extract_response_data(response=virustotal_response,api_type="virustotal") 
+            print("aaaaaaaaaaaaa",scan_results["virustotal"])
             scan_results["urlscan"] = self.extract_response_data(response=urlscan_response,api_type="urlscan")
+            print("bbbbbbbbbbbbbbbbb",scan_results["urlscan"])
             
+            time.sleep(25)
+            sys.stdout.flush()
             return scan_results
                  
         except Exception as e:
@@ -193,17 +186,17 @@ class API_Helper:
                     "categories":attributes.get("categories",{})    
                            
                 }
-            elif api_type=="urlscan":
-                page_info = response.get("page", {})
-                url_status = response.get("verdicts", {}).get("overall", {})
-                return {
-                    "url:", page_info.get("url", "N/A"),
-                    "domain:", page_info.get("domain", "N/A"),
-                    "country:", page_info.get("country", "N/A"),
-                    "malicious", url_status.get("malicious", False),
-                    "score:", url_status.get("score", "N/A")
-                }
-                
+            elif api_type.lower() == "urlscan":
+                    page_info = data.get("page", {})
+                    url_status = data.get("verdicts", {}).get("overall", {})
+
+                    return {
+                        "url": page_info.get("url", "N/A"),
+                        "domain": page_info.get("domain", "N/A"),
+                        "country": page_info.get("country", "N/A"),
+                        "malicious": url_status.get("malicious", False),
+                        "score": url_status.get("score", "N/A")
+                    }
             else:
                 return None
             

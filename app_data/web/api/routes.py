@@ -2,7 +2,7 @@ from flask import (
     Blueprint, render_template, request,jsonify
 )
 
-import sys, os,json,re,requests
+import sys, os,json,re,requests,datetime
 
 
 #Define the blueprint: 'product', set its url prefix: app.url/product
@@ -131,17 +131,27 @@ def ScanURL():
                 return jsonify({"error": "Invalid URL"}), 400
             
             result = None
-            print("hello",flush=True)
+            
+            
             my_api = API_Helper(dbp=my_db)#Create an instance of the API_Helper
-            print("hello",flush=True)
-            #result = my_api.ScanURL(target_url=target_url)#Scan the URL
+            print("Scanning URL...", flush=True)
+            result = my_api.ScanURL(target_url=target_url)#Scan the URL
             
             sys.stdout.flush()  # Ensures the buffer is flushed immediately
-            print(result)
-
+            
+            print(result, flush=True)
+            
+            currect_time = datetime.datetime.now()
             while result is None:
                 time.sleep(5)
-            return jsonify({"status": "Success"}), 200
+                if currect_time > currect_time + datetime.timedelta(minutes=2): #If the time is greater than 1 minute
+                    return jsonify({"error": "Timeout"}), 408
+               
+                
+                
+            return jsonify({"status": "Success"}), 400
+            
+            
             
         except Exception as e:
             #!Change the error message
