@@ -61,41 +61,7 @@ class Database_Connection_Class:
         #If the connection is unable to connect after multiple retries, raise an exception 
         raise Exception("MySQL is not available after multiple retries.")
     
-    #*-------------------------------Get_Links----------------------------------------------------------------------------
-    def Get_Links(self,api_method_type:str) -> dict: #Get the links from the database for Send_requests_api function
-        if api_method_type is None:
-            return []
-        match api_method_type:
-            case "url_scan":
-                sql_command = "SELECT website_name,link,request_type,headers FROM Phishing_Database.Links_Table WHERE purpose='url_scan'"           
-            case "threat_catagories":
-                sql_command = "SELECT website_name,link,request_type,headers FROM Links_Table WHERE purpose='threat_catagories'"
-
-            case "domain_scan":
-                sql_command = "SELECT website_name,link,request_type,headers FROM Phishing_Database.Links_Table WHERE purpose='domain_scan'"
-            case _:
-                return []
-        
-        try:
-            self.mycursor.execute(sql_command)
-            results = self.mycursor.fetchall()
-            rows = []
-            for row in results:
-              
-                if len(row) == 4:
-                    (website_name, link, request_type, headers) = row  # Unpack the tuple
-                    rows.append({
-                        "website_name": website_name,
-                        "link": link,
-                        "request_type": request_type,
-                        "headers": headers
-                    })
-            return rows 
-        except Exception as e:
-            print(e)
-            return None
-    #*-----------------------------------------------------------------------------------------------------------
-    
+ 
     #!Test function 
     def Get_Connection_Status(self):
         return self.connection.is_connected()
@@ -116,6 +82,26 @@ class Database_Connection_Class:
                 return False
         return False
     
+    
+    
+    
+    def insert_data(self,table_name:str,columns:str,values:str) -> bool:
+        if self.mycursor is None or table_name is None or columns is None or values is None:
+            return None
+        
+        try:
+            self.mycursor.execute(f"INSERT INTO {table_name} ({columns}) VALUES ({values})")
+            self.connection.commit()
+            return True
+        except Exception as e:
+            #print(e)
+            return False
+        
+    
+
+
+   
+
 
     
     
@@ -124,9 +110,8 @@ class Database_Connection_Class:
         
             if condition is  None or value is  None or message_type is  None:
                 return None
-                
-                
-            match message_type:
+
+            match message_type: #Check the message type
                 case "condition": #E.g check if the user is exist
                         self.mycursor.execute(f"SELECT {columns} FROM {table_name} WHERE {condition}='{value}'")# get from the database all names of clients
                         

@@ -93,21 +93,12 @@ def add_api_values(connection_):
     
     
     
-
-
 #add_api_values()        
 
     
 
 
 
-
-
-
-
-
-
-  
 
 
 

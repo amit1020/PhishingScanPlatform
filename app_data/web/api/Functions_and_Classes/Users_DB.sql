@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `APIMethods_table` (
   `url` varchar(100) NOT NULL,
   `api_name` varchar(25) NOT NULL,
   `http_method` varchar(10) NOT NULL,
-  `headers` json NOT NULL,
+  `headers` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `Links_Table_UNIQUE` (`url`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

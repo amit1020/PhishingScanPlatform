@@ -21,26 +21,71 @@ HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","
 
 
 
-def send_http_request(self,headers:dict,url:str,http_method:str,payload:dict) -> any:
+def send_virustotal(api,url):
+    # base64-url-safe encode (strip trailing '=')
+    encoded_url = base64.urlsafe_b64encode(url.encode()).decode().rstrip("=")
+    # Let's say you do a GET request to the URL's VirusTotal resource:
+    url = f"https://www.virustotal.com/api/v3/urls/{encoded_url}"
+    headers = {
+        "x-apikey": api,
+        "accept": "application/json"
+    }
+    response = requests.get(url, headers=headers)
+    return response
+
+
+def send_urlscan(api_key, url, visibility="public"):
+    endpoint = "https://urlscan.io/api/v1/scan/"
+    headers = {
+        "API-Key": api_key,
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "url": url,
+        "visibility": visibility  # 'public' or 'private'
+    }
+    
     try:
-        match http_method.lower():
-            case "post":
-                response = requests.post(url, headers=headers,data=payload)
-                if response.status_code == 200:
-                    return response.json()
-                return response.text
-            case "get":
-                response = requests.get(url, headers=headers)
-                if response.status_code == 200:
-                    return response.json()
-                return response.text
-            case _:
-                return None
-    except Exception as e:
-        print(e)
+        response = requests.post(endpoint, json=payload, headers=headers)
+        response.raise_for_status()  # Raise error for non-2xx responses
+        scan_result = response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Request error: {e}")
+        return None
+    
+    # Extract scan UUID
+    scan_uuid = scan_result.get("uuid")
+    if not scan_uuid:
+        print("Error starting scan:", scan_result)
+        return None
+
+    print(f"Scan started! UUID: {scan_uuid}")
+    result_url = f"https://urlscan.io/result/{scan_uuid}/"
+    print(f"View results here: {result_url}")
+
+    # Wait for scan to complete with a max wait time
+    result_endpoint = f"https://urlscan.io/api/v1/result/{scan_uuid}/"
+    max_wait_time = 60  # Maximum wait time in seconds
+    wait_interval = 5  # Polling interval
+    elapsed_time = 0
+
+    while elapsed_time < max_wait_time:
+        time.sleep(wait_interval)
+        elapsed_time += wait_interval
+        result_response = requests.get(result_endpoint)
+
+        if result_response.status_code == 200:
+            return result_response.json()  # Return JSON result
+
+    print("Scan results not available within the time limit.")
+    return None
+
+    
+    
+    
+    
+    
         
-    
-    
     
 
 
@@ -65,7 +110,6 @@ class API_Helper:
 
         
         
-        
     def __Decrypt_(self,API_KEY) -> str:
         try:
             private_key_path = Path(__file__).parent.parent.parent.parent / "Keys" / "Private.pem"
@@ -80,34 +124,26 @@ class API_Helper:
             print(e)
             return None
        
-    
-    
 
     
 
+
     
     
-    def Scan(self,**kwds) -> any:
-        message = None
-        headers = kwds.get("headers",None)
-        APIType = kwds.get("api_type",None)
-        url = kwds.get("url",None)
-        http_method = kwds.get("http_method",None)
-        payload = kwds.get("payload",None)
-        
-        if headers is None or APIType is None or url is None or http_method is None or self.api_virustotal is None or self.api_APIVoid is None:
+    def Scan(self,traget_url) -> any:
+        if traget_url is None:
             return None
-        
-        if http_method.upper() not in HTTP_METHODS: #Check if the http method is valid
-            return None
-        
-        if APIType.lower() != "virustotal" or APIType.lower() != "APIVoid" :
-            return None
-            
-    
+        scan_results = {}
         try:
-            pass 
-                
+            virustotal_response = send_virustotal(self.api_virustotal,traget_url)
+            urlscan_response = send_urlscan(self.api_APIVoid,traget_url)
+            
+            #Extract the data from the responses
+            scan_results["virustotal"] = self.extract_response_data(virustotal_response,"virustotal") 
+            scan_results["urlscan"] = self.extract_response_data(urlscan_response,"urlscan")
+            
+            return scan_results
+                 
         except Exception as e:
             print(e)
             return None
@@ -163,12 +199,53 @@ class API_Helper:
 
 
 
-                
             
         
     
         
-        
+"""
+    
+
+def replace_to_api(lines: list) -> list:
+    updated_lines = []  # Store modified lines
+
+    for line in lines:
+        modified_parts = []  # Store modified parts of each line
+                        
+        for part in line.strip().split("|"):  # Split the line by '|'
+            if "__replace_me__" in part:
+                l = part.split(",")  # Split by ","
+                if len(l) > 1:  # Ensure valid split
+                    parts = l[1].split(":")  # Split second element by ":"
+                    if len(parts) > 1:  # Ensure valid split
+                        parts[1] = "work"  # Modify the second part
+                        l[1] = ":".join(parts)  # Reconstruct
+                    part = ",".join(l)  # Reconstruct the full segment
+                            
+            modified_parts.append(part)  # Add modified (or unmodified) part
+                            
+         
+        updated_lines.append("|".join(modified_parts))  # Join modified parts
+                    
+                        
+         
+                    env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.env_user_db"))
+                    cursor = connection.cursor()
+                    
+                    
+                    with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../api_methods.txt")), "r") as fp:
+                        lines = fp.readlines()  # Read all lines into a list
+                    for line in lines:
+                        line = line.split("|")
+                        sql = "INSERT INTO API_Methods (url, api_name, http_method, headers) VALUES (%s, %s,%s,%s)"
+                        vals = (line[0],line[1],line[2], line[3])
+                        cursor.execute(sql, vals)
+                        connection.commit()
+    
+
+
+"""
+
         
         
                 
