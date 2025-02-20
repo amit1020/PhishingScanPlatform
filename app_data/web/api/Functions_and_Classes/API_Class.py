@@ -128,19 +128,17 @@ class API_Helper:
     
 
 
-    
-    
-    def Scan(self,traget_url) -> any:
-        if traget_url is None:
+    def __call__(self,target_url) -> any:
+        if target_url is None:
             return None
         scan_results = {}
         try:
-            virustotal_response = send_virustotal(self.api_virustotal,traget_url)
-            urlscan_response = send_urlscan(self.api_APIVoid,traget_url)
+            virustotal_response = send_virustotal(self.api_virustotal,target_url)
+            urlscan_response = send_urlscan(self.api_APIVoid,target_url)
             
             #Extract the data from the responses
-            scan_results["virustotal"] = self.extract_response_data(virustotal_response,"virustotal") 
-            scan_results["urlscan"] = self.extract_response_data(urlscan_response,"urlscan")
+            scan_results["virustotal"] = self.extract_response_data(response=virustotal_response,api_type="virustotal") 
+            scan_results["urlscan"] = self.extract_response_data(response=urlscan_response,api_type="urlscan")
             
             return scan_results
                  
