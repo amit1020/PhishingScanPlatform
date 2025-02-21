@@ -207,11 +207,57 @@
         var cometColor = '226,225,224';
         var canva = document.getElementById('universe');
         var stars = [];
+        let target_url = "";
+        let saved_url = ""; // Variable to store the final entered value
 
-        windowResizeHandler();
-        window.addEventListener('resize', windowResizeHandler, false);
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get canvas safely
+            let canva = document.getElementById("universe");
 
-        createUniverse();
+            // Get input element safely
+            let searchInput = document.getElementById("search");
+            if (searchInput) {
+                searchInput.addEventListener("input", function () {
+                    target_url = this.value; //Update global variable
+                    //console.log("Updated target_url:", target_url);
+                });
+
+                //  Listen for Enter key press
+                searchInput.addEventListener("keypress", function (event) {
+                    if (event.key === "Enter") {  // Check if Enter is pressed
+                        event.preventDefault(); // Prevent default form submission (if inside a form)
+                        saved_url = target_url; // Save the input value
+
+                        //console.log("Final saved URL:", saved_url);
+                        GetURL(saved_url);
+                    }
+                });
+            } else {
+                console.error("Element with ID 'search' not found.");
+            }
+
+            function windowResizeHandler() {
+                console.log("Current target_url:", target_url); //  Logs updated value on resize
+
+                width = window.innerWidth;
+                height = window.innerHeight;
+                starCount = width * starDensity;
+                circleRadius = width > height ? height / 2 : width / 2;
+                circleCenter = { x: width / 2, y: height / 2 };
+
+                canva.setAttribute("width", width);
+                canva.setAttribute("height", height);
+            }
+
+                windowResizeHandler(); //  Initial call after DOM loads
+                window.addEventListener("resize", windowResizeHandler, false);
+                createUniverse();
+            });
+
+
+
+
+        
 
         function createUniverse() {
         universe = canva.getContext('2d');
@@ -326,19 +372,9 @@
         return (Math.random() * (max - min) + min);
         }
 
-        function windowResizeHandler() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        starCount = width * starDensity;
-        circleRadius = (width > height ? height / 2 : width / 2);
-        circleCenter = {
-            x: width / 2,
-            y: height / 2
-        }
-
-        canva.setAttribute('width', width);
-        canva.setAttribute('height', height);
-        }
+        //windowResizeHandler();
+        //window.addEventListener('resize', windowResizeHandler, false);
+        //createUniverse();
 
       </script>
 

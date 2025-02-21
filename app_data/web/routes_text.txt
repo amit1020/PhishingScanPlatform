@@ -1,2 +1,0 @@
-/       | product.html
-/admin  | admin.html 

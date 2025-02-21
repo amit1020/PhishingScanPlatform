@@ -32,7 +32,13 @@ class Database_Connection_Class:
         self.connection = None
 
         self.connect_with_retry()
-        add_api_values()
+        
+        _virustotal_exist = self.check_or_get_data(table_name="API_Table",columns="api_website_name",condition="api_website_name",value="virustotal",message_type="condition")
+        _urlscan_exist = self.check_or_get_data(table_name="API_Table",columns="api_website_name",value="urlscan",condition="api_website_name",message_type="condition")
+        sys.stdout.flush()
+        
+        if _virustotal_exist is None or _urlscan_exist is None:            
+            add_api_values()
 
 
     #Try to connects the dayabase with multiple retries
@@ -61,41 +67,7 @@ class Database_Connection_Class:
         #If the connection is unable to connect after multiple retries, raise an exception 
         raise Exception("MySQL is not available after multiple retries.")
     
-    #*-------------------------------Get_Links----------------------------------------------------------------------------
-    def Get_Links(self,api_method_type:str) -> dict: #Get the links from the database for Send_requests_api function
-        if api_method_type is None:
-            return []
-        match api_method_type:
-            case "url_scan":
-                sql_command = "SELECT website_name,link,request_type,headers FROM Phishing_Database.Links_Table WHERE purpose='url_scan'"           
-            case "threat_catagories":
-                sql_command = "SELECT website_name,link,request_type,headers FROM Links_Table WHERE purpose='threat_catagories'"
-
-            case "domain_scan":
-                sql_command = "SELECT website_name,link,request_type,headers FROM Phishing_Database.Links_Table WHERE purpose='domain_scan'"
-            case _:
-                return []
-        
-        try:
-            self.mycursor.execute(sql_command)
-            results = self.mycursor.fetchall()
-            rows = []
-            for row in results:
-              
-                if len(row) == 4:
-                    (website_name, link, request_type, headers) = row  # Unpack the tuple
-                    rows.append({
-                        "website_name": website_name,
-                        "link": link,
-                        "request_type": request_type,
-                        "headers": headers
-                    })
-            return rows 
-        except Exception as e:
-            print(e)
-            return None
-    #*-----------------------------------------------------------------------------------------------------------
-    
+ 
     #!Test function 
     def Get_Connection_Status(self):
         return self.connection.is_connected()
@@ -116,22 +88,55 @@ class Database_Connection_Class:
                 return False
         return False
     
+    
+    
+    
+    def insert_data(self,table_name:str,columns:str,values:str) -> bool:
+        if self.mycursor is None or table_name is None or columns is None or values is None:
+            return None
+        
+        try:
+            self.mycursor.execute(f"INSERT INTO {table_name} ({columns}) VALUES ({values})")
+            self.connection.commit()
+            return True
+        except Exception as e:
+            #print(e)
+            return False
+        
+    
+
+
+   
+
 
     
-    def Get_user_data(self,table_name:str,columns:str,condition:str=None,value:str=None) -> list[dict]:
+    
+    def check_or_get_data(self,table_name:str,columns:str,condition:str=None,value:str=None,message_type:str=None) -> list[dict]:
         if self.mycursor is not None:
-            if condition is not None and value is not None:
-                try:
-                    self.mycursor.execute(f"SELECT {columns} FROM {table_name} WHERE {condition}='{value}'")# get from the database all names of clients
-                    results = self.mycursor.fetchall()
-                    rows = []
-                    for row in results:
-                        rows.append(row)
-                    
-                    return rows
-                except Exception as e:
-                    print(e)
+            if condition is  None or value is  None or message_type is  None:
+                return None
+            match message_type: #Check the message type
+                case "condition":   #E.g check if the user is exist
+                        self.mycursor.execute(f"SELECT {columns} FROM {table_name} WHERE {condition}='{value}'")# get from the database all names of clients
+                        
+                case "Get-data": #E.g get the user data
+                        self.mycursor.execute(f"SELECT {columns} FROM {table_name}")# get from the database all names of clients
+                        
+                case _:
+                    #! Invlid message_type
+                    return None             
+            try:
+                results = self.mycursor.fetchall()
+                if results is None or len(results) == 0:
                     return None
+                rows = []
+                for row in results:
+                    rows.append(row)
+                return rows
+            
+            except Exception as e:
+                print(e)
+                return None
         return None
     
     
@@ -187,7 +192,7 @@ class Database_Connection_Class:
      
      
      
-    #*if the database isnt exist, the pythob will  Build the database from the sql file 
+    #*if the database isnt exist, the python will  Build the database from the sql file 
     def Build_database(self):
         #print("Running database setup...")
         with open(self.database_code_path, 'r', encoding='utf-8') as file:
