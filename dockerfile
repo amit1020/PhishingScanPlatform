@@ -1,6 +1,8 @@
 # Use the official Python image from Docker Hub
 FROM python:3.11-slim
 
+
+#
 # Install MySQL client and netcat
 RUN apt-get update && apt-get install -y --no-install-recommends \
     default-mysql-client netcat-openbsd && \

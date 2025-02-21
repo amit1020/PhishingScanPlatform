@@ -57,7 +57,6 @@ def product_home():
 def Vertification_2FA():
     try:
         data = request.get_json()
-        print(data)
         # Ensure data is a dictionary
         if not isinstance(data, dict):
             return jsonify({"error": "Invalid data format, expected an object"}), 400
@@ -83,8 +82,7 @@ def Vertification_2FA():
       
 
     except Exception as e:
-        print(str(e), file=sys.stderr)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error"}), 500
 
 
     
@@ -126,43 +124,53 @@ def ScanURL():
                 return jsonify({"error": "Invalid data format, expected an object"}), 400
             target_url = data.get("url")
             
-        
+    
             if not is_ValidURL(target_url):
                 return jsonify({"error": "Invalid URL"}), 400
-            
             result = None
-            
-            
             my_api = API_Helper(dbp=my_db)#Create an instance of the API_Helper
-            print("Scanning URL...", flush=True)
+            
             result = my_api.ScanURL(target_url=target_url)#Scan the URL
             
             sys.stdout.flush()  # Ensures the buffer is flushed immediately
             
-            print(result, flush=True)
+            
             
             currect_time = datetime.datetime.now()
             while result is None:
                 time.sleep(5)
                 if currect_time > currect_time + datetime.timedelta(minutes=2): #If the time is greater than 1 minute
                     return jsonify({"error": "Timeout"}), 408
-               
                 
                 
-            return jsonify({"status": "Success"}), 400
+                
+                
+            if result['urlscan'] is None:
+                result['urlscan'] = {}  # Initialize as an empty dictionary
+                result['urlscan']['malicious'] = "N/A"
+                
             
+
             
-            
+            try:
+                if result['virustotal']['malicious_count'] == 0 and result['virustotal']['suspicious_count'] == 0:
+                    if result['virustotal']['total-votes-malicious'] < result['virustotal']['total-votes-harmless'] and result['virustotal']['reputation'] > 40:
+                        print("here1", flush=True)
+                        return jsonify({"result": {"urlscan":result['urlscan']['malicious'],"virustotal":"false"}}), 200
+                    
+                return jsonify({"result": {"urlscan":result['urlscan']['malicious'],"virustotal":"true"}}), 200
+                    
+            except Exception as e:
+                print(f"here2 {str(e)}", flush=True)
+                return jsonify({"error": "Error with virustotal"}), 500
+                
         except Exception as e:
-            #!Change the error message
-            #return jsonify({"error": "ERROR"}), 500
-            return jsonify({"error": str(e)}), 500
-        #https://www.google.com
+            return jsonify({"error": "ERROR"}), 500
+
         
     else:
-        print("here")
-        #!Change the error message
-        return jsonify({"error": "Invalid request method"}), 405
+
+        return jsonify({"error": "ERROR"}), 405
     
 
         

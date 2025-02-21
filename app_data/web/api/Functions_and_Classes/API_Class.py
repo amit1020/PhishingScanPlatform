@@ -24,7 +24,6 @@ HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","
 def send_virustotal(api,url):
     # base64-url-safe encode (strip trailing '=')
     encoded_url = base64.urlsafe_b64encode(url.encode()).decode().rstrip("=")
-    # Let's say you do a GET request to the URL's VirusTotal resource:
     url = f"https://www.virustotal.com/api/v3/urls/{encoded_url}"
     headers = {
         "x-apikey": api,
@@ -45,26 +44,22 @@ def send_urlscan(api_key, url, visibility="public"):
     try:
         response = requests.post(scan_endpoint, json=payload, headers=headers)
         if response.status_code != 200:
-            print(f"Scan request failed! Status code: {response.status_code}, Response: {response.text}")
+            #print(f"Scan request failed! Status code: {response.status_code}, Response: {response.text}")
             return None
 
         scan_result = response.json()
-        print(f"Scan Response: {scan_result}")  # Debugging
+        #print(f"Scan Response: {scan_result}")  # Debugging
 
     except requests.exceptions.RequestException as e:
-        print(f"Request error: {e}")
+        #print(f"Request error: {e}")
         return None
-
     if "uuid" not in scan_result:
-        print(f"Unexpected scan result format: {scan_result}")
+        #print(f"Unexpected scan result format: {scan_result}")
         return None
-
     scan_uuid = scan_result["uuid"]
-    print(f"Scan started! UUID: {scan_uuid}")
-
+    #print(f"Scan started! UUID: {scan_uuid}")
     # Wait for scan to complete
     time.sleep(20)
-
     result_endpoint = f"https://urlscan.io/api/v1/result/{scan_uuid}/"
     result_response = requests.get(result_endpoint)
 
@@ -144,9 +139,9 @@ class API_Helper:
             
             #Extract the data from the responses
             scan_results["virustotal"] = self.extract_response_data(response=virustotal_response,api_type="virustotal") 
-            print("aaaaaaaaaaaaa",scan_results["virustotal"])
+            #print("aaaaaaaaaaaaa",scan_results["virustotal"])
             scan_results["urlscan"] = self.extract_response_data(response=urlscan_response,api_type="urlscan")
-            print("bbbbbbbbbbbbbbbbb",scan_results["urlscan"])
+            #print("bbbbbbbbbbbbbbbbb",scan_results["urlscan"])
             
             time.sleep(25)
             sys.stdout.flush()
@@ -262,14 +257,3 @@ def replace_to_api(lines: list) -> list:
         
        
 
-
-"""
-
-if __name__ == "__main__":
-    from General_Functions import read_ini_file #When I run the file directly
-    from Database_Class import Database_Connection_Class #When I run the file directly
-    pass
-else:
-    from app_data.Functions_and_Classes.General_Functions import read_ini_file #When I import the file to another file
-    from app_data.Functions_and_Classes.Database_Class import Database_Connection_Class #When I import the file to another file
-"""

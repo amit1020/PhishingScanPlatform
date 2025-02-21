@@ -22,7 +22,7 @@
             return responseData;
     
         } catch (error) {
-            console.error("Fetch error:", error.message);
+
             return null;  // Always return null instead of crashing
         }
     }
@@ -38,12 +38,13 @@
         const response = await Send_Data_(message_body, endpoint);
 
         //!change response to the correct variable name
-        if (response && response["no-know-yet"]) {  
+        if (response && response.result) {  
+            document.getElementById("Resualt-par").innerHTML = "";//clear the previous result
+            document.getElementById("Resualt-par").innerHTML = saved_url + "<br>" + "URLScan Malicious: " + response.result.urlscan + "<br>" + "VirusTotal Safe: " + response.result.virustotal;
 
-            //! Answer deploy code here 
-            //document.getElementById("p_key").innerHTML = "Your key is: " + response["2FA_key"];
         } else {
-            console.error("Failed to retrieve 2FA key.");
+            console.error("Error:", response.Error);
+            //console.error("Failed to retrieve 2FA key.");
         }
     }
     
