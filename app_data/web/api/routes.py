@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, request,jsonify
+    Blueprint, render_template, request,jsonify, session, redirect, url_for
 )
 
 import sys, os,json,re,requests,datetime,time
@@ -52,6 +52,7 @@ def UserLogin():
                 print("Incorrect information", flush=True)
                 return jsonify({"error": "Incorrect information"}), 401
             
+            
             print("Success", flush=True)
             return jsonify({"status": "Success"}), 200
 
@@ -83,11 +84,19 @@ def Vertification_2FA():
         print(result, flush=True)
         #Check if the OTP is valid
         if result:
-            return jsonify({"status": "Success"}), 200
+            session['user'] = username #For the session
+            print("jereeeeee", flush=True)
+            return jsonify({
+                "status": "Success",
+                "redirect": url_for('login_page.UserPage', _external=True)  # Send redirect URL
+            }), 200
+            
+            #return jsonify({"status": "Success"}), 200
         else:
             return jsonify({"status": "Failure"}), 401
 
     except Exception as e:
+        print(f"Error: {str(e)}", flush=True)
         return jsonify({"error": "Error"}), 500
 
 

@@ -87,6 +87,7 @@ function Move_between_sections(sec){
     
         if (response && response.status === "Success") {  
             console.log("✅ 2FA verification successful");
+            window.location.href = response.redirect;  // Use Flask's redirect URL
         } else {
             console.error("❌ 2FA verification failed.");
         }

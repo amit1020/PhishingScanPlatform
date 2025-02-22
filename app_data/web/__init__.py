@@ -30,16 +30,15 @@ def Create_App():
     #?app.config.from_object('config.Config') #!This line will import the Config class from the config.py file and load the configuration into the app object.
     
     #!When we use url_prefix, we are telling Flask to add the prefix to the URL of all the routes in the blueprint.
-    from web.admin.routes import admin_bp #import the blueprint object
-    app.register_blueprint(admin_bp,url_prefix='/admin') #register the blueprint object in the app
-    
+    from web.admin.routes import admin_bp #import the blueprint object 
     from web.Main_page.routes import Main_page_bp #import the blueprint object
-    app.register_blueprint(Main_page_bp,url_prefix='/') #register the blueprint object in the app
-    
     from web.login_page.routes import login_bp #import the blueprint object
-    app.register_blueprint(login_bp,url_prefix='/login') #register the blueprint object in the app
-    
     from web.api.routes import API_bp #import the blueprint object
+    
+    
+    app.register_blueprint(admin_bp,url_prefix='/admin') #register the blueprint object in the app
+    app.register_blueprint(Main_page_bp,url_prefix='/') #register the blueprint object in the app
+    app.register_blueprint(login_bp,url_prefix='/login') #register the blueprint object in the app
     app.register_blueprint(API_bp,url_prefix='/api') #register the blueprint object in the app
 
 
