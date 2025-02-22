@@ -29,7 +29,6 @@ def PageShowUp():
 def UserPage():
     if 'user' not in session:
         return redirect(url_for('login_bp.PageShowUp'))  # Redirect to login page if not logged in 
-        
     return render_template('/user.html') 
 
 

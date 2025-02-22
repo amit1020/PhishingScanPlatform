@@ -28,7 +28,6 @@ def UserLogin():
     if request.method == 'POST':
         try:
             data = request.get_json()#Extract the data from the request
-            print(f"------------------------{data}", flush=True)
             # Ensure data is a dictionary (not a list)
             if not isinstance(data, dict):
                 return jsonify({"error": "Invalid data format, expected an object"}), 400
@@ -43,13 +42,13 @@ def UserLogin():
                 return jsonify({"error": "Missing required fields"}), 400
 
             result = my_db.check_or_get_data(table_name="Users_Table",columns="*",condition="name",value=username,message_type="condition")
-            print(result, flush=True)
+            
             if result is None:
                 return jsonify({"error": "Incorrect information"}), 404
             
             print(result[0][2], flush=True)
             if password != result[0][2]:
-                print("Incorrect information", flush=True)
+                
                 return jsonify({"error": "Incorrect information"}), 401
             
             
@@ -81,7 +80,7 @@ def Vertification_2FA():
         if result == None:
             return jsonify({"error": "User not found"}), 404
         
-        print(result, flush=True)
+        
         #Check if the OTP is valid
         if result:
             session['user'] = username #For the session
