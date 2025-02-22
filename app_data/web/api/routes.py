@@ -2,8 +2,8 @@ from flask import (
     Blueprint, render_template, request,jsonify
 )
 
-import sys, os,json,re,requests,datetime,phonenumbers
-from email_validator import validate_email, EmailNotValidError
+import sys, os,json,re,requests,datetime,time
+
 
 
 #Define the blueprint: 'product', set its url prefix: app.url/product
@@ -62,35 +62,11 @@ def Vertification_2FA():
 #* Valid the user data -section --------------------------------------------------------------------------------
     
 
-#Convert the number into E164 format
-def format_without_extension(phone_number, region="IL"):
-    try:
-        parsed_number = phonenumbers.parse(phone_number, region)
-        return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
+
     
-    except phonenumbers.NumberParseException:
-        return "Invalid Number"
 
 
-def user_data_is_valid(data:dict,region="ISR") -> tuple[bool, str]:
-    #check if teh email is valid
-    try:
-        valid = validate_email(data.get("email"))
-        is_valid_email = True
-    except EmailNotValidError as e:
-        return False, "Invalid email address"
-    
-    #Check if the phone number is valid
-    try:
-        number =  format_without_extension(number, region)
-        parsed_number = phonenumbers.parse(number, region)
-        is_valid_phone_number = phonenumbers.is_valid_number(parsed_number)
-    except phonenumbers.NumberParseException:
-        return False, "Invalid phone number"
-    
-    
-    
-    
+
 
 #Check if the data is already exist in the database
 def data_database_existence(data:dict) -> tuple[bool, str]:
@@ -104,7 +80,6 @@ def data_database_existence(data:dict) -> tuple[bool, str]:
         
         _is_valid = my_db.check_or_get_data(table_name="Users_Table",columns=_key,value=_value,message_type="Specific-data")
         if  _is_valid:
-            print(f"Get here {_key}", flush=True)   
             return False, _key
         
     return True, "Data is valid" #If all the data isn't exist in the database
@@ -126,15 +101,16 @@ def add_user():
                 return jsonify({"error": "Invalid data format, expected an object"}), 400
 
             if not data_database_existence(data)[0]:
-                print(data_database_existence(data)[0])
-                print("OK it is work", flush=True)
-                print(data_database_existence(data)[1], flush=True)
+                
                 return jsonify({"error": data_database_existence(data)[1]}), 409
             
-            print("FINEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", flush=True)
+            check_valid_data = ValidData(data)(region="IL")#Check if the data is valid
             
-            
-            key = generate_2fa_secret()            
+            if not check_valid_data[0]:
+                return jsonify({"error": check_valid_data[1]}), 400
+
+
+            key = generate_2fa_secret()#Generate a 2FA key
             result = my_db.Create_Client(Data=data, twoFA_key_var=key)#Creates the user, return True id successful, False if not
 
             if not result:  
@@ -147,8 +123,6 @@ def add_user():
             return jsonify({"error": str(e)}), 500  
     
     return jsonify({"error": "Invalid request method"}), 405
-
-
 
 
 
@@ -232,19 +206,3 @@ def ScanURL():
         return jsonify({"error": "ERROR"}), 405
     
 
-        
-"""
-
-import requests
-
-
-
-r = requests.post(data={'name': 'Alice', 'age': 25}, url='http://127.0.0.1:1234/api/add_user')
-
-
-if r.status_code == 200:
-    print(r.text)
-else:   
-    print('Error:', r.status_code)
-
-"""
