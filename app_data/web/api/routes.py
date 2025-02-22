@@ -23,8 +23,41 @@ except ImportError as e:
 
 
 
+@API_bp.route('/UserLogin/', methods=['POST'])
+def UserLogin():
+    if request.method == 'POST':
+        try:
+            data = request.get_json()#Extract the data from the request
+            print(f"------------------------{data}", flush=True)
+            # Ensure data is a dictionary (not a list)
+            if not isinstance(data, dict):
+                return jsonify({"error": "Invalid data format, expected an object"}), 400
+            
+            
+            username = data.get("name")
+            password = data.get("password")
+            
 
 
+            if not username or not password:
+                return jsonify({"error": "Missing required fields"}), 400
+
+            result = my_db.check_or_get_data(table_name="Users_Table",columns="*",condition="name",value=username,message_type="condition")
+            print(result, flush=True)
+            if result is None:
+                return jsonify({"error": "Incorrect information"}), 404
+            
+            print(result[0][2], flush=True)
+            if password != result[0][2]:
+                print("Incorrect information", flush=True)
+                return jsonify({"error": "Incorrect information"}), 401
+            
+            print("Success", flush=True)
+            return jsonify({"status": "Success"}), 200
+
+        except Exception as e:
+            return jsonify({"error": "Error"}), 500
+   
 
     
     
@@ -42,17 +75,18 @@ def Vertification_2FA():
         if not username or not otp:
             return jsonify({"error": "Missing required fields"}), 400
 
-        result =my_db.Get_OTP(Name=username)
+        result =my_db.VertifyOTP(Name=username, OTP=otp)#Check if the OTP is valid
         
         if result == None:
             return jsonify({"error": "User not found"}), 404
         
-        
-        if verify_otp(result, int(otp.strip())):
+        print(result, flush=True)
+        #Check if the OTP is valid
+        if result:
             return jsonify({"status": "Success"}), 200
         else:
             return jsonify({"status": "Failure"}), 401
-                
+
     except Exception as e:
         return jsonify({"error": "Error"}), 500
 
@@ -60,13 +94,6 @@ def Vertification_2FA():
 
 
 #* Valid the user data -section --------------------------------------------------------------------------------
-    
-
-
-    
-
-
-
 
 #Check if the data is already exist in the database
 def data_database_existence(data:dict) -> tuple[bool, str]:
@@ -85,11 +112,6 @@ def data_database_existence(data:dict) -> tuple[bool, str]:
     return True, "Data is valid" #If all the data isn't exist in the database
     
     
-    
-    
-
-
-
 @API_bp.route('/add_user/', methods=['POST'])
 def add_user():
     

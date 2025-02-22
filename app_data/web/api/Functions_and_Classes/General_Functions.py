@@ -95,10 +95,9 @@ def Create_QR(key:str,name:str) -> bool:
         return False
     
     
-    
+
 #Vertify the OTP
 def verify_otp(secret_key, otp):
-    print(otp)
     return pyotp.TOTP(secret_key).verify(otp,valid_window=0) #! This is the secret key that be stored in the database
 
 
@@ -202,6 +201,7 @@ class ValidData:
             return False, "Password is too common"
 
         return True, "Strong password"
+
 
     @staticmethod
     @lru_cache(maxsize=1)

@@ -63,10 +63,10 @@
             <div class="login">
                 <div class="loginBx" id="loginBx">
                     <!--   Luminous blue -->
-                    <h2><i class="fa-solid fa-right-to-bracket"></i> Login</h2>
-                    <input type="text"  placeholder="Username">
-                    <input type="password"  placeholder="Password">
-                    <input type="submit" name="" value="Sign in" onclick="javascript:Move_between_sections('authentication')">
+                    <h2><i class="fa-solid fa-right-to-bracket"></i>Login</h2>
+                    <input type="text"  placeholder="Username" id="login_username">
+                    <input type="password"  placeholder="Password", id="login_password">
+                    <input type="submit" name="" value="Sign in" onclick="javascript:LoginFunction()">
                     <div class="group">
                         <a href="#">Forgot Password</a>
                         <a id="sign_up_herf" href="#">Sign up</a>
@@ -77,8 +77,8 @@
                 <!-- TODO: Change authentication place-->
                 <div class="loginBx" id="authentication" style="display: none;">
                     <h2><i class="fa-solid fa-right-to-bracket"></i>2FA</h2>
-                    <input type="text"  placeholder="Code">
-                    <input type="submit" value="Submit" >
+                    <input type="text"  placeholder="Code" id="OTP_login">
+                    <input type="submit" value="Submit" onclick="javascript:VertifyOTP_UserLogin()"> 
                 </div>
 
                 <div class="loginBx" id="registration" style="display: none;">
@@ -93,7 +93,7 @@
                  <div class="loginBx" id="2FA_Verification_section" style="display: none;">
                     <h2><i class="fa-solid fa-right-to-bracket"></i>2FA_Verification</h2>
                     <p id="p_key"><p/>
-                    <input type="number"  placeholder="MFA code" id="OTP_code"> 
+                    <input type="number"  placeholder="MFA code" id="OTP_register"> 
 
                     <input type="submit" value="Submit" onclick="javascript:verify_otp()">
                 </div>
