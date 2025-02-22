@@ -86,10 +86,9 @@ function Move_between_sections(sec){
         const response = await Send_Data_(message_body, url);
     
         if (response && response.status === "Success") {  
-            console.log("✅ 2FA verification successful");
             window.location.href = response.redirect;  // Use Flask's redirect URL
         } else {
-            console.error("❌ 2FA verification failed.");
+            console.error("Error");
         }
     }
     
@@ -134,9 +133,10 @@ function Move_between_sections(sec){
         const response = await Send_Data_(message_body, url);
     
         if (response && response.status === "Success") {  
-            console.log("✅ 2FA verification successful");
+            window.location.href = response.redirect;  // Use Flask's redirect URL
+            
         } else {
-            console.error("❌ 2FA verification failed.");
+            console.error("Error");
         }
     }
     
