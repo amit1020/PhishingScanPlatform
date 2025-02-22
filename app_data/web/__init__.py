@@ -1,10 +1,30 @@
-from flask import Flask
+from flask import Flask,session
+from flask_session import Session
+import redis,os
+from dotenv import load_dotenv
 
 
 
 
 def Create_App():
     app = Flask(__name__)
+    
+    
+    env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env_app"))
+    load_dotenv(env_path)
+        
+    app.secret_key = os.getenv('SECRET_KEY')
+    # Configure Flask-Session
+    app.config['SESSION_TYPE'] = 'redis'
+    app.config['SESSION_PERMANENT'] = False
+    app.config['SESSION_USE_SIGNER'] = True
+    app.config['SESSION_KEY_PREFIX'] = 'flask_session:'
+    app.config['SESSION_REDIS'] = redis.StrictRedis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=0)
+    
+    Session(app)
+    
+    
+    
     
     
     #?app.config.from_object('config.Config') #!This line will import the Config class from the config.py file and load the configuration into the app object.
@@ -27,8 +47,6 @@ def Create_App():
     @app.errorhandler(404)
     def not_found_error(error):
         return "This page was not found", 404
-    
-    
     
     return app
 
