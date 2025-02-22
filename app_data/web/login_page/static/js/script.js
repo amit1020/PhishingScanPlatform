@@ -61,10 +61,10 @@ function Move_between_sections(sec){
             name: document.getElementById("registration_username").value,
             password: document.getElementById("registration_password").value,
             email: document.getElementById("registration_email").value,
-            phone: document.getElementById("registration_phone_number").value
+            phone_number: document.getElementById("registration_phone_number").value
         });
 
-        console.log(message_body);
+
     
         const response = await Send_Data_(message_body, url);
     

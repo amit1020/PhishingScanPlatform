@@ -2,7 +2,8 @@ from flask import (
     Blueprint, render_template, request,jsonify
 )
 
-import sys, os,json,re,requests,datetime
+import sys, os,json,re,requests,datetime,phonenumbers
+from email_validator import validate_email, EmailNotValidError
 
 
 #Define the blueprint: 'product', set its url prefix: app.url/product
@@ -21,36 +22,10 @@ except ImportError as e:
 
 
 
-def is_ValidURL(url) -> bool:
-    # Check the URL begins with http:// or https://
-    if not url.startswith(('http://', 'https://')):
-        url = 'https://' + url  # Default to https if no scheme is provided
-
-    # Check the URL format
-    regex = re.compile( 
-    r'^(https?:\/\/)?'  
-    r'(([A-Za-z0-9-]+\.)+[A-Za-z]{2,6})'  # Domain name (e.g., example.com)
-    r'(\/[^\s]*)?$'  # Optional path (e.g., /page)
-    )
-    if not re.match(regex, url):
-        return False #, "Invalid URL format"
-
-    try:#Check if the URL is reachable (real website check)
-        response = requests.head(url, timeout=5, allow_redirects=True)
-        if response.status_code < 400:  # Success (2xx or 3xx status codes)
-            return True #, "URL is valid and online"
-        else:
-            return False #, f"URL responded with status code {response.status_code}"
-    except requests.RequestException:
-        return False # ,"URL is unreachable"
-
-    
 
 
 
-@API_bp.route('/test', methods=['GET'])
-def product_home():
-    return "hello world"
+
     
     
 @API_bp.route('/Vertification/2FA', methods=['POST'])
@@ -78,15 +53,68 @@ def Vertification_2FA():
         else:
             return jsonify({"status": "Failure"}), 401
                 
-
-      
-
     except Exception as e:
         return jsonify({"error": "Error"}), 500
 
 
+
+
+#* Valid the user data -section --------------------------------------------------------------------------------
+    
+
+#Convert the number into E164 format
+def format_without_extension(phone_number, region="IL"):
+    try:
+        parsed_number = phonenumbers.parse(phone_number, region)
+        return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
+    
+    except phonenumbers.NumberParseException:
+        return "Invalid Number"
+
+
+def user_data_is_valid(data:dict,region="ISR") -> tuple[bool, str]:
+    #check if teh email is valid
+    try:
+        valid = validate_email(data.get("email"))
+        is_valid_email = True
+    except EmailNotValidError as e:
+        return False, "Invalid email address"
+    
+    #Check if the phone number is valid
+    try:
+        number =  format_without_extension(number, region)
+        parsed_number = phonenumbers.parse(number, region)
+        is_valid_phone_number = phonenumbers.is_valid_number(parsed_number)
+    except phonenumbers.NumberParseException:
+        return False, "Invalid phone number"
     
     
+    
+    
+
+#Check if the data is already exist in the database
+def data_database_existence(data:dict) -> tuple[bool, str]:
+    table_columns = ['name','email','phone_number'] 
+    for _key,_value in data.items():
+        if not _value:
+            return False, f"{_value} is missing"
+        
+        if _key == "password":
+            continue
+        
+        _is_valid = my_db.check_or_get_data(table_name="Users_Table",columns=_key,value=_value,message_type="Specific-data")
+        if  _is_valid:
+            print(f"Get here {_key}", flush=True)   
+            return False, _key
+        
+    return True, "Data is valid" #If all the data isn't exist in the database
+    
+    
+    
+    
+
+
+
 @API_bp.route('/add_user/', methods=['POST'])
 def add_user():
     
@@ -97,8 +125,16 @@ def add_user():
             if not isinstance(data, dict):
                 return jsonify({"error": "Invalid data format, expected an object"}), 400
 
-            key = generate_2fa_secret() 
+            if not data_database_existence(data)[0]:
+                print(data_database_existence(data)[0])
+                print("OK it is work", flush=True)
+                print(data_database_existence(data)[1], flush=True)
+                return jsonify({"error": data_database_existence(data)[1]}), 409
             
+            print("FINEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", flush=True)
+            
+            
+            key = generate_2fa_secret()            
             result = my_db.Create_Client(Data=data, twoFA_key_var=key)#Creates the user, return True id successful, False if not
 
             if not result:  
@@ -112,6 +148,36 @@ def add_user():
     
     return jsonify({"error": "Invalid request method"}), 405
 
+
+
+
+
+#* URL scanning section --------------------------------------------------------------------------------
+
+def is_ValidURL(url) -> bool:
+    # Check the URL begins with http:// or https://
+    if not url.startswith(('http://', 'https://')):
+        url = 'https://' + url  # Default to https if no scheme is provided
+
+    # Check the URL format
+    regex = re.compile( 
+    r'^(https?:\/\/)?'  
+    r'(([A-Za-z0-9-]+\.)+[A-Za-z]{2,6})'  # Domain name (e.g., example.com)
+    r'(\/[^\s]*)?$'  # Optional path (e.g., /page)
+    )
+    if not re.match(regex, url):
+        return False #, "Invalid URL format"
+
+    try:#Check if the URL is reachable (real website check)
+        response = requests.head(url, timeout=5, allow_redirects=True)
+        if response.status_code < 400:  # Success (2xx or 3xx status codes)
+            return True #, "URL is valid and online"
+        else:
+            return False #, f"URL responded with status code {response.status_code}"
+    except requests.RequestException:
+        return False # ,"URL is unreachable"
+
+    
 
 @API_bp.route('/ScanURL/', methods=['POST'])
 def ScanURL():
@@ -142,16 +208,9 @@ def ScanURL():
                 if currect_time > currect_time + datetime.timedelta(minutes=2): #If the time is greater than 1 minute
                     return jsonify({"error": "Timeout"}), 408
                 
-                
-                
-                
             if result['urlscan'] is None:
                 result['urlscan'] = {}  # Initialize as an empty dictionary
                 result['urlscan']['malicious'] = "N/A"
-                
-            
-
-            
             try:
                 if result['virustotal']['malicious_count'] == 0 and result['virustotal']['suspicious_count'] == 0:
                     if result['virustotal']['total-votes-malicious'] < result['virustotal']['total-votes-harmless'] and result['virustotal']['reputation'] > 40:
