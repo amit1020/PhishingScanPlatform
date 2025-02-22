@@ -2,7 +2,7 @@ sections_array = ["loginBx", "registration", "authentication","2FA_Verification_
 
 //For 2FA vertification
 let USERNAME = undefined;
-
+let USER_NAME_TO_ENTER = undefined
 
 function Move_between_sections(sec){
     sections_array.forEach(function(item){
@@ -18,6 +18,8 @@ function Move_between_sections(sec){
 
 
 
+
+    
 
 
     //https://www.freecodecamp.org/news/how-to-send-http-requests-using-javascript/
@@ -46,55 +48,95 @@ function Move_between_sections(sec){
             return null;  // Always return null instead of crashing
         }
     }
+
+
+
+
+    async function LoginFunction(){
+        let url = `${window.location.origin}/api/UserLogin/`;
+        console.log(url);
+        USER_NAME_TO_ENTER = document.getElementById("login_username").value;
+        let message_body = JSON.stringify({
+            name: USER_NAME_TO_ENTER,
+            password: document.getElementById("login_password").value
+        });
+        const permission = await Send_Data_(message_body, url);
+        console.log(permission.status);
+
+        if (permission && permission.status === "Success") {  
+            Move_between_sections('authentication');
+        } else {
+            console.error("Not successful", permission.Error);
+        }
+        //TODO finish the route for the login
+        //Move_between_sections('authentication')
     
+    }
+        
+
+
+    
+    async function VertifyOTP_UserLogin() {
+        //The meaning of this line is to get the current URL of the page and add the path to the API
+        let url = `${window.location.origin}/api/Vertification/2FA`;
+        let message_body = JSON.stringify({
+            username: USER_NAME_TO_ENTER,
+            otp: document.getElementById("OTP_login").value
+        });
+        const response = await Send_Data_(message_body, url);
+    
+        if (response && response.status === "Success") {  
+            window.location.href = response.redirect;  // Use Flask's redirect URL
+        } else {
+            console.error("Error");
+        }
+    }
+    
+
+
+
 
 
     async function registration_function() {
         //The meaning of this line is to get the current URL of the page and add the path to the API
         let url = `${window.location.origin}/api/add_user/`;
-    
         //Makes the USERNAME available globally
         USERNAME = document.getElementById("registration_username").value;
-
-
         let message_body = JSON.stringify({
             name: document.getElementById("registration_username").value,
             password: document.getElementById("registration_password").value,
             email: document.getElementById("registration_email").value,
-            phone: document.getElementById("registration_phone_number").value
+            phone_number: document.getElementById("registration_phone_number").value
         });
-
-        console.log(message_body);
-    
         const response = await Send_Data_(message_body, url);
-    
         if (response && response["2FA_key"]) {  
             Move_between_sections("2FA_Verification_section");
             document.getElementById("p_key").innerHTML = "Your key is: " + response["2FA_key"];
         } else {
-            console.error("Failed to retrieve 2FA key.");
+            console.error("Error:", response.Error);
         }
     
         Clear_registration();  
     }
     
     
+
+
+
     async function verify_otp() {
         //The meaning of this line is to get the current URL of the page and add the path to the API
         let url = `${window.location.origin}/api/Vertification/2FA`;
-
-        
         let message_body = JSON.stringify({
             username: USERNAME,
-            otp: document.getElementById("OTP_code").value
+            otp: document.getElementById("OTP_register").value
         });
-    
         const response = await Send_Data_(message_body, url);
     
         if (response && response.status === "Success") {  
-            console.log("✅ 2FA verification successful");
+            window.location.href = response.redirect;  // Use Flask's redirect URL
+            
         } else {
-            console.error("❌ 2FA verification failed.");
+            console.error("Error");
         }
     }
     
@@ -107,4 +149,10 @@ function Clear_registration(){
     document.getElementById("registration_email").value = "";
     document.getElementById("registration_phone_number").value = "";
 }
+
+
+function Test(){
+    console.log("Test");
+}
+
 

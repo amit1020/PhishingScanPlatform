@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session
+from flask import Blueprint, render_template, redirect, url_for,flash, session
 
 
 
@@ -25,7 +25,16 @@ def PageShowUp():
 
 
 
-@login_bp.route('/userpage/', methods=['GET'])
-def product_home():
+@login_bp.route('/UserPage/', methods=['GET'])
+def UserPage():
+    if 'user' not in session:
+        return redirect(url_for('login_bp.PageShowUp'))  # Redirect to login page if not logged in 
+        
     return render_template('/user.html') 
-    
+
+
+
+@login_bp.route('/logout') 
+def logout():
+    session.clear()  # Clear session
+    return redirect(url_for('login_bp.PageShowUp'))

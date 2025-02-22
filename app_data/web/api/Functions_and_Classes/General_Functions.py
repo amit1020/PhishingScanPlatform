@@ -1,11 +1,11 @@
-import configparser, pyotp,time,qrcode,PIL, bcrypt
-from pathlib import Path
-
-
+import pyotp,qrcode,PIL, bcrypt,phonenumbers,re,requests
+from email_validator import validate_email, EmailNotValidError
+from functools import lru_cache
+import dns.resolver
 #Encryption and Decryption modules
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-import time
+
 #This module converts binary data to Hexadecimal
 from binascii import hexlify
 
@@ -54,10 +54,6 @@ def Decrypt_(private_key,encrypted_data):
 
 
 
-
-
-
-
 #! ------------------ Hashing functions --------------
 
 def HashPassword(pass_:str):
@@ -99,10 +95,9 @@ def Create_QR(key:str,name:str) -> bool:
         return False
     
     
-    
+
 #Vertify the OTP
 def verify_otp(secret_key, otp):
-    print(otp)
     return pyotp.TOTP(secret_key).verify(otp,valid_window=0) #! This is the secret key that be stored in the database
 
 
@@ -110,49 +105,118 @@ def verify_otp(secret_key, otp):
 
 
 
-if __name__ == "__main__":
-    key = generate_2fa_secret()
-    Create_QR(key,"test")
-
-
+#*------------------------Validate data functions------------------------
   
+# Convert phone number to E.164 format
+def format_without_extension(phone_number, region="IL"):
+    """Formats a phone number to E.164 format."""
+    try:
+        parsed_number = phonenumbers.parse(phone_number, region)
+        return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
+    except phonenumbers.NumberParseException:
+        return None  # Return None for invalid numbers
 
-
-
-
-
-
-
-
-
-"""  2FA example code 
-
-    from flask import Flask, request, session
-    import pyotp
-
-    app = Flask(__name__)
-    app.secret_key = 'your_secret_key_here'
-
-    # יצירת מפתח סודי (במקרה האמיתי יש לאחסן בבסיס נתונים)
-    secret = pyotp.random_base32()
-
-    @app.route('/')
-    def index():
-        if 'otp' in session:
-            return 'Logged in using 2FA!'
-        return 'You are not logged in'
-
-    @app.route('/login', methods=['POST'])
-    def login():
-        user_otp = request.form['otp']
-        if pyotp.TOTP(secret).verify(user_otp):
-            session['otp'] = True
-            return 'You are logged in'
-        return 'Login failed'
-
-    if __name__ == '__main__':
-        app.run(debug=True)
+class ValidData:
+    def __init__(self, data: dict):
+        if data is None:
+            raise ValueError("Data is missing")
         
-"""
+        self.email = data.get("email")
+        self.phone_number = data.get("phone_number")
+        self.password = data.get("password")
+
+        if not self.email or not self.phone_number or not self.password:
+            raise ValueError("Missing required fields: email, phone_number, password")
+
+    def __call__(self, region="IL") -> tuple[bool, str]:
+        """Main function to validate user email, phone, and password."""
+        #Validate email
+        email_valid, email_message = self.validate_user_email()
+        if not email_valid:
+            return False, email_message
+
+        #Validate phone number
+        phone_valid, phone_message = self.validate_user_phone(region)
+        if not phone_valid:
+            return False, phone_message
+
+        #Validate password
+        password_valid, password_message = self.validate_password()
+        if not password_valid:
+            return False, password_message
+
+        return True, "All data is valid"
+
+    #*---------- Phone Validation ----------------
+    def validate_user_phone(self, region) -> tuple[bool, str]:
+        """Validates user phone number."""
+        formatted_number = format_without_extension(self.phone_number, region)
+        if not formatted_number:
+            return False, "Invalid phone number"
+        
+        try:
+            parsed_number = phonenumbers.parse(formatted_number, region)
+            if phonenumbers.is_valid_number(parsed_number) and phonenumbers.is_possible_number(parsed_number):
+                return True, "Valid phone number"
+            return False, "Invalid phone number"
+        except phonenumbers.NumberParseException:
+            return False, "Invalid phone number"
+
+    #*---------- Email Validation ----------------
+    def validate_user_email(self) -> tuple[bool, str]:
+        """Validates email format and checks if domain has valid MX records."""
+        try:
+            valid_email = validate_email(self.email, check_deliverability=True).normalized
+            
+            #Extra MX record check for more accuracy
+            if not self.domain_has_mx_record():
+                return False, "Invalid email: No mail server found"
+
+            return True, f"Valid email: {valid_email}"
+
+        except EmailNotValidError:
+            return False, "Invalid email address"
+
+    def domain_has_mx_record(self) -> bool:
+        """Checks if the domain has valid MX records."""
+        try:
+            domain = self.email.split('@')[-1]  # Extract domain
+            mx_records = dns.resolver.resolve(domain, 'MX')
+            return bool(mx_records)  # Returns True if MX records exist
+        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.exception.Timeout):
+            return False  # No mail server found
+
+    #*---------- Password Validation ----------------
+    def validate_password(self) -> tuple[bool, str]:
+        """Checks password strength based on predefined security rules."""
+        if len(self.password) < 8:
+            return False, "Password must be at least 8 characters long"
+        if not re.search(r"[A-Z]", self.password) or not re.search(r"[a-z]", self.password):
+            return False, "Password must contain both uppercase and lowercase letters"
+        if not re.search(r"\d", self.password):
+            return False, "Password must contain at least one number"
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", self.password):
+            return False, "Password must contain at least one special character"
+        if self.is_common_password():
+            return False, "Password is too common"
+
+        return True, "Strong password"
+
+
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def get_common_passwords() -> list:
+        """Fetches and caches the common password list from GitHub."""
+        url = "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10k-most-common.txt"
+        try:
+            response = requests.get(url, timeout=5)  # Added timeout for reliability
+            response.raise_for_status()  # Raise an error for bad responses (4xx/5xx)
+            return response.text.strip().lower().split("\n")
+        except requests.RequestException:
+            return []  # Return an empty list if request fails
+
+    def is_common_password(self) -> bool:
+        """Checks if the password is in the list of commonly used passwords."""
+        return self.password.lower() in self.get_common_passwords()
 
 

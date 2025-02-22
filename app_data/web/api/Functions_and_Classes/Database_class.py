@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 from web.api.Functions_and_Classes.Add_API import add_api_values
+from web.api.Functions_and_Classes.General_Functions import verify_otp
 
 HTTP_METHODS = ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS","CONNECT","TRACE"]
 
@@ -74,14 +75,17 @@ class Database_Connection_Class:
     
     
     
-    def Get_OTP(self,Name:str) -> bool:
+    def VertifyOTP(self,Name:str,OTP) -> bool:
         if Name is not None:
             try:
                 self.mycursor.execute(f"SELECT 2FA_key FROM Users_Table WHERE name='{Name}'")# get from the database all names of clients
                 results = self.mycursor.fetchall()
                 if len(results) == 0:
                     return False
-                return results[0][0]
+                
+                return verify_otp(secret_key=results[0][0],otp=OTP)
+                
+                #return results[0][0]
             
             except Exception as e:
                 print(e)
@@ -108,20 +112,30 @@ class Database_Connection_Class:
 
    
 
-
     
     
-    def check_or_get_data(self,table_name:str,columns:str,condition:str=None,value:str=None,message_type:str=None) -> list[dict]:
+    
+    def check_or_get_data(self,table_name:str,columns:str,condition:str=None,value:str=None,message_type:str=None):
         if self.mycursor is not None:
-            if condition is  None or value is  None or message_type is  None:
+            if table_name is  None or columns is  None or message_type is  None:#Check if the table_name is not None
                 return None
+            
             match message_type: #Check the message type
                 case "condition":   #E.g check if the user is exist
-                        self.mycursor.execute(f"SELECT {columns} FROM {table_name} WHERE {condition}='{value}'")# get from the database all names of clients
+                    if condition is  None or value is  None:#Check if the condition is not None
+                        return None
+                    self.mycursor.execute(f"SELECT {columns} FROM {table_name} WHERE {condition}='{value}'")# get from the database all names of clients
                         
                 case "Get-data": #E.g get the user data
-                        self.mycursor.execute(f"SELECT {columns} FROM {table_name}")# get from the database all names of clients
-                        
+                    self.mycursor.execute(f"SELECT {columns} FROM {table_name}")# get from the database all names of clients
+                
+                case "Specific-data": #E.g get the user data
+                    if value is None:
+                        return None
+                    
+                    self.mycursor.execute(f"SELECT COUNT(*) FROM {table_name} WHERE {columns}='{value}';")# get from the database all names of clients
+                    exists = self.mycursor.fetchone()[0]
+                    return bool(exists) #return the result as a list of dict
                 case _:
                     #! Invlid message_type
                     return None             
@@ -146,7 +160,7 @@ class Database_Connection_Class:
         if Data is not None:
             try:
                 sql = "INSERT INTO Users_Table (name, password, email, 2FA_key, phone_number) VALUES (%s, %s, %s, %s, %s)"
-                vals = (Data['name'],Data['password'],Data['email'], twoFA_key_var, Data['phone'])
+                vals = (Data['name'],Data['password'],Data['email'], twoFA_key_var, Data['phone_number'])
                             
                 self.mycursor.execute(sql,vals)
                 self.connection.commit()
