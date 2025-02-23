@@ -32,7 +32,7 @@
 
 
     async function GetURL(saved_url){
-        
+        Start_Loading_js();
         let endpoint = `${window.location.origin}/api/ScanURL/`; //Api endpoint
        
         let message_body = JSON.stringify({ url: saved_url }); 
@@ -43,14 +43,33 @@
         if (response && response.result) {  
             document.getElementById("Resualt-par").innerHTML = "";//clear the previous result
             document.getElementById("Resualt-par").innerHTML = saved_url + "<br>" + "URLScan Malicious: " + response.result.urlscan + "<br>" + "VirusTotal Safe: " + response.result.virustotal;
+            Stop_Loading_js();
 
         } else {
             console.error("Error:", response.Error);
             //console.error("Failed to retrieve 2FA key.");
+            Stop_Loading_js();
         }
     }
     
     
     
-    
-    
+
+
+let Loading_parameter = undefined;
+
+function Start_Loading_js() {
+    Loading_parameter = Metro.activity.open({
+        type: 'square',
+        overlayColor: '#fff',
+        overlayAlpha: 1,
+        text: '<div class="loader"></div>', // Injects custom CSS loader
+    });
+}
+
+function Stop_Loading_js() {
+    Metro.activity.close(Loading_parameter);
+}
+
+
+                    /* HTML: <div class="loader"></div> */
