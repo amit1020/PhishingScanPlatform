@@ -113,9 +113,9 @@ function Move_between_sections(sec){
             Move_between_sections("2FA_Verification_section");
             document.getElementById("p_key").innerHTML = "Your key is: " + response["2FA_key"];
         } else {
-            console.error("Error:", response.Error);
+            alert(response.Error);
+            //console.error("Error:", response.Error);
         }
-    
         Clear_registration();  
     }
     
