@@ -23,6 +23,14 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
+    - name: Create key-folder
+      run: |
+        mkdir -p app_data/keys
+        echo "${{ secrets.PRIVATE_KEY }}" > app_data/keys/Private.pem        
+        chmod 600 app_data/keys/Private.pem  
+        echo "${{ secrets.PUBLIC_KEY }}" > app_data/keys/Public.pem
+        chmod 600 app_data/keys/Public.pem
+      
     - name: Build Docker image
       run: |
         docker build -t amit1020/phishing-scan-platform:latest .
