@@ -74,7 +74,7 @@ def add_api_values(connection_):
     
     #*Get the data from the env file
     api_env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.env_api"))
-    load_dotenv(api_env_path)
+    load_dotenv('/home/ec2-user/PhishingScanPlatform/app_data/.env_api')
 
     mycursor = connection_.cursor()
     
@@ -82,8 +82,6 @@ def add_api_values(connection_):
         try:
             mycursor = connection_.cursor()
             sql = "INSERT INTO API_Table (api_website_name, value) VALUES (%s, %s)"
-            
-            print(_,os.getenv(_),flush=True)
             en_data = encrypt_message(os.getenv(_))#Encrypt the API key
             val = (_,en_data)
             mycursor.execute(sql, val)

@@ -11,7 +11,7 @@ def Create_App():
     
     
     env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env_app"))
-    load_dotenv(env_path)
+    load_dotenv('/home/ec2-user/PhishingScanPlatform/app_data/.env_app')
         
     app.secret_key = os.getenv('SECRET_KEY')
     # Configure Flask-Session
@@ -19,7 +19,7 @@ def Create_App():
     app.config['SESSION_PERMANENT'] = False
     app.config['SESSION_USE_SIGNER'] = True
     app.config['SESSION_KEY_PREFIX'] = 'flask_session:'
-    app.config['SESSION_REDIS'] = redis.StrictRedis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=0)
+    app.config['SESSION_REDIS'] = redis.StrictRedis(host=os.getenv('REDIS_HOST'), port=6379, db=0)
     
     Session(app)
     

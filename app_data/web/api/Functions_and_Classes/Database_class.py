@@ -21,7 +21,8 @@ class Database_Connection_Class:
         self.database_code_path = Path(__file__).parent / "Users_DB.sql"#local path
         # Load .env file correctly
         env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.env_user_db"))
-        load_dotenv(env_path)
+        
+        load_dotenv('/home/ec2-user/PhishingScanPlatform/app_data/.env_user_db') #For the EC2 
         
 
 
