@@ -19,10 +19,6 @@ ENV PYTHONPATH="/app"
 RUN pip install --no-cache-dir -r requirements2.txt
 
 
-COPY ./app_data/.env_api .
-COPY ./app_data/.env_app .
-COPY ./app_data/.env_user_db .
-
 
 # Copy application files
 COPY ./app_data/wait-for-connection.sh /app/wait-for-connection.sh
