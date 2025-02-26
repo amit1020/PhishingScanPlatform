@@ -22,7 +22,7 @@ class Database_Connection_Class:
         # Load .env file correctly
         env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.env_user_db"))
         
-        load_dotenv('/home/ec2-user/PhishingScanPlatform/app_data/.env_user_db') #For the EC2 
+        load_dotenv(env_path) #For the EC2 
         
 
 

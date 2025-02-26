@@ -74,7 +74,7 @@ def add_api_values(connection_):
     
     #*Get the data from the env file
     api_env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.env_api"))
-    load_dotenv('/home/ec2-user/PhishingScanPlatform/app_data/.env_api')
+    load_dotenv(api_env_path)
 
     mycursor = connection_.cursor()
     

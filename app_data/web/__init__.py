@@ -11,7 +11,7 @@ def Create_App():
     
     
     env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env_app"))
-    load_dotenv('/home/ec2-user/PhishingScanPlatform/app_data/.env_app')
+    load_dotenv(env_path)
         
     app.secret_key = os.getenv('SECRET_KEY')
     # Configure Flask-Session
